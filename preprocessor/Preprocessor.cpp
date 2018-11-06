@@ -70,6 +70,7 @@ void thresh_callback(int, void* )
     /// Find contours
     findContours( canny_output, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
 
+    img.copyTo(img_final);
     /// Draw contours
     for( int i = 0; i< contours.size(); i++ )
     {
@@ -101,8 +102,6 @@ int selectImage(int index)
     cvtColor( img, img_gray, CV_BGR2GRAY );
     blur( img_gray, img_gray, Size(3,3) );
 
-    img_final = img;
-    imshow("Contours", img_final);
 
     thresh_callback(0, 0);
 
