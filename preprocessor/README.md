@@ -1,7 +1,7 @@
 Required libraries:
 
-    OpenCV (and dependencies: vtk, glew, hdf5)
-    Boost
+    - OpenCV (and dependencies: vtk, glew, hdf5)
+    - Boost
 
 How to build:
 
@@ -13,7 +13,7 @@ How to build:
 
             $ mkdir Debug
             $ cd Debug
-            $ cmake .. -DCAMKE_BUILD_TYPE=Debug
+            $ cmake .. -DCMAKE_BUILD_TYPE=Debug
             $ make
 
 
