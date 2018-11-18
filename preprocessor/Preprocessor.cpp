@@ -44,7 +44,7 @@ int main( int argc, char** argv )
 {
     loadFiles(datadir);
 
-    cv::namedWindow( "Contours", CV_WINDOW_AUTOSIZE);
+    cv::namedWindow( "Contours", cv::WINDOW_AUTOSIZE);
     cv::setMouseCallback("Contours", mouseCallback);
 
     int first_image = num_batch;
@@ -119,6 +119,7 @@ int main( int argc, char** argv )
     return(0);
 }
 
+int scaleDown = 1;
 void draw()
 {
     cv::Mat imgFinal;
@@ -146,7 +147,13 @@ void draw()
         cv::Scalar(255, 255, 0),
         1
     );
+    scaleDown = 1;
 
+    while (imgFinal.size().width > 1700 || imgFinal.size().height > 900)
+    {
+        ++scaleDown;
+        cv::resize(imgFinal, imgFinal, cv::Size2i(img.size() / scaleDown));
+    }
     /// Show in a window
     cv::imshow( "Contours", imgFinal);
 }
@@ -163,6 +170,8 @@ float distanceToLine(cv::Point p, cv::Point begin, cv::Point end)
 cv::Point buttonDownClick(-1, -1);
 void mouseCallback(int event, int x, int y, int flags, void* userdata)
 {
+    x = x * scaleDown;
+    y = y * scaleDown;
     if (event == cv::EVENT_LBUTTONDOWN)
     {
         if (lastClick.x == -1)
@@ -217,6 +226,7 @@ void mouseCallback(int event, int x, int y, int flags, void* userdata)
 
 
 unsigned char img_md5[MD5_DIGEST_LENGTH];
+char img_md5_str[MD5_DIGEST_LENGTH * 2];
 
 void saveBox()
 {
@@ -230,6 +240,11 @@ void saveBox()
     unsigned char *data = img.data;
     int data_bytes = img.total() * img.elemSize();
     MD5(data, data_bytes, img_md5);
+    for (auto i = 0; i < MD5_DIGEST_LENGTH; ++i)
+    {
+        img_md5_str[2*i] = "0123456789ABCDEF"[img_md5[i] / 16];
+        img_md5_str[2*i+1] = "0123456789ABCDEF"[img_md5[i] % 16];
+    }
 
     auto it = boxes.find(files[current_file]);
     it->second = currentBox;
@@ -241,12 +256,12 @@ void saveBox()
     ofs << currentBox.size.width << " ";
     ofs << currentBox.size.height << " ";
     ofs << currentBox.angle << " ";
-    for (const auto& c : img_md5)
+    for (const auto& c : img_md5_str)
     {
         ofs << c;
     }
     ofs << " ";
-    ofs << files[current_file].operator std::string();
+    ofs << std::string(files[current_file].c_str());
     ofs << std::endl;
 }
 
@@ -320,7 +335,7 @@ void loadBoxes(const std::string &file)
         ifs >> box.size.width;
         ifs >> box.size.height;
         ifs >> box.angle;
-        for (auto& c : img_md5)
+        for (auto& c : img_md5_str)
         {
             ifs >> c;
         }

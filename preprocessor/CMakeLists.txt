@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 
 project( IRI )
 
-find_package( OpenCV 3.4.1 REQUIRED )
+find_package( OpenCV REQUIRED )
 find_package( Boost REQUIRED COMPONENTS filesystem )
 find_package( OpenSSL REQUIRED )
 
