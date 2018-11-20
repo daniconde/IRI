@@ -147,7 +147,7 @@ def main(unused_argv):
   for i in list(range(len(labels))):
     # Create a feature
     feature = {'label': _int64_feature(labels[i]),
-               'image': _bytes_feature(tf.compat.as_bytes(np.array2string(images[i])))}
+               'image': _bytes_feature(tf.compat.as_bytes(np.array2string(images[i])))} #images[i].tostring()
     # Create an example protocol buffer
     example = tf.train.Example(features=tf.train.Features(feature=feature))
     

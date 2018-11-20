@@ -23,17 +23,17 @@ labels = np.array([])
 for serialized_example in tf.python_io.tf_record_iterator('../dataset/OUTPUT/model.tfrecords'):
     # example = tf.train.Example()
     # example.ParseFromString(serialized_example)
-    #im = example.features.feature['image'].bytes_list.value
-    #print(im)
-    #print(type(im))
+    # im = example.features.feature['image'].bytes_list.value
+    # print(im)
+    # print(type(im))
     # im2 = np.fromstring(im, dtype=int)
     # im2 = np.fromstring(im, dtype='<f4')
     # im2 = np.frombuffer(im, dtype=np.uint8)
     # images = np.append(images,np.array(im2))
-    #print(type(example.features.feature['label'].int64_list.value))
+    # print(type(example.features.feature['label'].int64_list.value))
     # images = np.append(images,np.array(example.features.feature['image'].int64_list.value))
-    #labels = np.append(labels,np.array(example.features.feature['label'].int64_list.value))
-    #print(type(labels[0]))
+    # labels = np.append(labels,np.array(example.features.feature['label'].int64_list.value))
+    # print(type(labels[0]))
 
     feature_set = { 'image': tf.FixedLenFeature([],tf.string),
                     'label': tf.FixedLenFeature([],tf.int64)
@@ -42,12 +42,31 @@ for serialized_example in tf.python_io.tf_record_iterator('../dataset/OUTPUT/mod
     label = features['label']
     label = tf.Session().run(label)
     image = features['image']
+    # print(type(image)) #type = Tensor
     image = tf.Session().run(image)
-    image = np.fromstring(image, dtype=int)
-    print(type(image))
+    # print(type(image)) #type = bytes
+    # image = image.decode()
+    # print(type(image))
+    # print(image)
+    # image = np.fromstring(image, dtype=int)
+    # image = np.array(image, dtype=np.int64)
+    # image = image.decode()
+    image = np.frombuffer(image, dtype=np.uint8)
+    # print(type(image))
     print(image)
+
+    labels = np.append(labels, np.array(label))
+    images = np.append(images, image)
     
 print(labels)
+print(type(labels))
+print(labels[0])
+print(type(labels[0]))
+np.set_printoptions(threshold=np.inf)
+print(images)
+print(type(images))
+print(images[0])
+print(type(images[0]))
 
 # We know that MNIST images are 28 pixels in each dimension.
 img_width = 90
