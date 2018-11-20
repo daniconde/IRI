@@ -13,10 +13,41 @@ from tensorflow.python.keras.layers import Conv2D, Dense, Flatten
 import tensorflow as tf
 from tensorflow.python.keras.optimizers import Adam
 
+import glob
 
-#########################################
-############Variables globales###########
-#########################################
+# matriu = np.array([[1,1],
+#                    [2,2]])
+
+images = np.array([])
+labels = np.array([])
+for serialized_example in tf.python_io.tf_record_iterator('../dataset/OUTPUT/model.tfrecords'):
+    # example = tf.train.Example()
+    # example.ParseFromString(serialized_example)
+    #im = example.features.feature['image'].bytes_list.value
+    #print(im)
+    #print(type(im))
+    # im2 = np.fromstring(im, dtype=int)
+    # im2 = np.fromstring(im, dtype='<f4')
+    # im2 = np.frombuffer(im, dtype=np.uint8)
+    # images = np.append(images,np.array(im2))
+    #print(type(example.features.feature['label'].int64_list.value))
+    # images = np.append(images,np.array(example.features.feature['image'].int64_list.value))
+    #labels = np.append(labels,np.array(example.features.feature['label'].int64_list.value))
+    #print(type(labels[0]))
+
+    feature_set = { 'image': tf.FixedLenFeature([],tf.string),
+                    'label': tf.FixedLenFeature([],tf.int64)
+    }
+    features = tf.parse_single_example(serialized_example,features=feature_set)
+    label = features['label']
+    label = tf.Session().run(label)
+    image = features['image']
+    image = tf.Session().run(image)
+    image = np.fromstring(image, dtype=int)
+    print(type(image))
+    print(image)
+    
+print(labels)
 
 # We know that MNIST images are 28 pixels in each dimension.
 img_width = 90
@@ -34,65 +65,12 @@ img_shape = (img_height, img_width)
 img_shape_full = (img_height, img_width, 1)
 
 # Number of colour channels for the images: 1 channel for gray-scale.
-num_channels = 3
+num_channels = 1
 
 # Number of classes, one class for each of 10 digits.
 num_classes = 2
 
-#########################################
-############Leer Dataset#################
-#########################################
 
-
-# Creates a dataset that reads all of the examples from two files(exemple de path="/data/file2.tfrecord").
-filenames = ["../dataset/OUTPUT/train-00000-of-00001"]
-# filenames = ["../dataset/OUTPUT/train-00000-of-00001", "../dataset/OUTPUT/validation-00000-of-00001"]
-dataset = tf.data.TFRecordDataset(filenames)
-
-def _parse_function(example_proto):
-    keys_to_features = {'image/encoded': tf.VarLenFeature(tf.string),
-                        'image/class/label': tf.VarLenFeature(tf.int64)}
-    parsed_features = tf.parse_single_example(example_proto, keys_to_features)
-    image = parsed_features['image/encoded']
-    label = parsed_features['image/class/label']
-    return [image, label]
-# Parse the record into tensors.
-dataset = dataset.map(_parse_function)
-
-iterator = dataset.make_one_shot_iterator()
-next_element = iterator.get_next()
-x1 = np.array(next_element[0])
-x2 = np.array(next_element[1])
-
-while True:
-    data_record = next_element
-    print("hola")
-    print(data_record[0])
-    print(data_record[1])
-
-    
-
-# data_path = '../dataset/OUTPUT/train-00000-of-00001'
-
-# feature = {'image/encoded': tf.FixedLenFeature([], tf.string),
-#                'image/label': tf.FixedLenFeature([], tf.int64)}
-# # Create a list of filenames and pass it to a queue
-# filename_queue = tf.train.string_input_producer([data_path], num_epochs=1)
-# # Define a reader and read the next record
-# reader = tf.TFRecordReader()
-# _, serialized_example = reader.read(filename_queue)
-# # Decode the record read by the reader
-# features = tf.parse_single_example(serialized_example, features=feature)
-# # Convert the image data from string back to the numbers
-# image = tf.decode_raw(features['image/encoded'], tf.float32)
-
-# # Cast label data into int32
-# label = tf.cast(features['image/label'], tf.int32)
-
-# print(label)
-# print(image)
-    # Reshape image data into the original shape
-    # image = tf.reshape(image, [224, 224, 3])
 #########################################
 ############MODELO SECUENCIAL############
 #########################################
@@ -145,13 +123,13 @@ model.compile(optimizer=optimizer,
               metrics=['accuracy'])
 
 #Entrenamiento del modelo
-model.fit(x=dataset.get('image'),
-          y=dataset.get('label'),
-          epochs=1, batch_size=128, steps=2)
+model.fit(x=images,
+          y=labels,
+          epochs=1, batch_size=128)
 
 #Evaluación del modelo
-result = model.evaluate(x=data.test.images,
-                        y=data.test.labels)
+result = model.evaluate(x=images,
+                        y=labels)
 
 #Imprimir perdida y precision
 for name, value in zip(model2.metrics_names, result):
@@ -164,10 +142,10 @@ print("{0}: {1:.2%}".format(model.metrics_names[1], result[1]))
 #########################################
 ############PREDICCION###################
 #########################################
+'''
+images = images[0:9]
 
-images = data.test.images[0:9]
-
-cls_true = data.test.cls[0:9]
+cls_true = dataset.cls[0:1]
 
 y_pred = model.predict(x=images)
 
@@ -175,4 +153,4 @@ y_pred = model.predict(x=images)
 cls_pred = np.argmax(y_pred,axis=1)
 print(cls_pred)
 print(cls_true)
-
+'''
