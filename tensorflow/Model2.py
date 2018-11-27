@@ -57,6 +57,8 @@ for serialized_example in tf.python_io.tf_record_iterator('../dataset/OUTPUT/mod
 images = np.array(images)
 labels = np.array(labels)
 
+
+
 #data = tf.SparseTensor(images=images, labels=labels)
 
 # if (images.ndim == 1):
