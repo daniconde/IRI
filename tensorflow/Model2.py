@@ -15,11 +15,9 @@ from tensorflow.python.keras.optimizers import Adam
 
 import glob
 
-# matriu = np.array([[1,1],
-#                    [2,2]])
 
-images = np.array([])
-labels = np.array([])
+images = []
+labels = []
 for serialized_example in tf.python_io.tf_record_iterator('../dataset/OUTPUT/model.tfrecords'):
     # example = tf.train.Example()
     # example.ParseFromString(serialized_example)
@@ -42,31 +40,24 @@ for serialized_example in tf.python_io.tf_record_iterator('../dataset/OUTPUT/mod
     label = features['label']
     label = tf.Session().run(label)
     image = features['image']
-    # print(type(image)) #type = Tensor
-    image = tf.Session().run(image)
-    # print(type(image)) #type = bytes
-    # image = image.decode()
-    # print(type(image))
-    # print(image)
-    # image = np.fromstring(image, dtype=int)
-    # image = np.array(image, dtype=np.int64)
-    # image = image.decode()
-    image = np.frombuffer(image, dtype=np.uint8)
-    # print(type(image))
-    print(image)
-
-    labels = np.append(labels, np.array(label))
-    images = np.append(images, image)
     
-print(labels)
-print(type(labels))
-print(labels[0])
-print(type(labels[0]))
+    image = tf.Session().run(image)
+    
+    '''
+    image = image.decode() #bytes->string
+    image = np.fromstring(image,dtype=np.uint8)#string->array
+    '''
+    image = np.frombuffer(image, dtype=np.uint8)
+    
+    labels.append(label) 
+    images.append(image)
+
+images = np.array(images)
+labels = np.array(labels)
+    
 np.set_printoptions(threshold=np.inf)
-print(images)
-print(type(images))
 print(images[0])
-print(type(images[0]))
+
 
 # We know that MNIST images are 28 pixels in each dimension.
 img_width = 90
@@ -142,9 +133,15 @@ model.compile(optimizer=optimizer,
               metrics=['accuracy'])
 
 #Entrenamiento del modelo
+"""
+Le informaremos también del batch size, es decir, de la cantidad de 
+imágenes que debe usar en cada iteración. 
+Así como del numero de epochs, es decir, de cuantas veces va a recorrer el conjunto entero de datos para entrenar.
+"""
+
 model.fit(x=images,
           y=labels,
-          epochs=1, batch_size=128)
+          epochs=1, batch_size=5) 
 
 #Evaluación del modelo
 result = model.evaluate(x=images,

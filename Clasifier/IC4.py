@@ -81,9 +81,15 @@ def _process_image(filename, coder):
   # Check that image converted to RGB
   assert len(image.shape) == 3
   assert image.shape[2] == 1
-
+  
+  image = image.flatten()
+  print(image)
+  '''
   image = np.squeeze(np.asarray(image))
-  # np.array2string(image)
+  image = np.array2string(image) #array->string
+  image = image.encode() #string->bytes
+  '''
+  image = image.tobytes()
   return image
 
 #REURNS IMAGES AND LABELS ARRAYS
@@ -136,8 +142,6 @@ def _bytes_feature(value):
 
 def main(unused_argv):
   images, labels =_find_image_files()
-  print(type(images))
-  print(type(labels))
   print('Image size: %d. Label size: %d.' %(len(images), len(labels)))
   
   output_file = FLAGS.output_file  # file to save the TFRecords file
@@ -147,7 +151,7 @@ def main(unused_argv):
   for i in list(range(len(labels))):
     # Create a feature
     feature = {'label': _int64_feature(labels[i]),
-               'image': _bytes_feature(tf.compat.as_bytes(np.array2string(images[i])))} #images[i].tostring()
+               'image': _bytes_feature(images[i])} #images[i].tostring() / tf.compat.as_bytes(np.array2string(images[i]))
     # Create an example protocol buffer
     example = tf.train.Example(features=tf.train.Features(feature=feature))
     
