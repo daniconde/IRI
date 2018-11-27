@@ -49,15 +49,24 @@ for serialized_example in tf.python_io.tf_record_iterator('../dataset/OUTPUT/mod
     '''
     image = np.frombuffer(image, dtype=np.uint8)
     
-    labels.append(label) 
+    ll= np.zeros(2);
+    ll[label] = 1;
+    labels.append(ll) 
     images.append(image)
 
 images = np.array(images)
 labels = np.array(labels)
+
+#data = tf.SparseTensor(images=images, labels=labels)
+
+# if (images.ndim == 1):
+#     images = np.array([images])
+# if (labels.ndim == 1):
+#     labels = np.array([labels])
     
 np.set_printoptions(threshold=np.inf)
-print(images[0])
-
+# print(images[0])
+print(labels[0])
 
 # We know that MNIST images are 28 pixels in each dimension.
 img_width = 90
@@ -148,7 +157,7 @@ result = model.evaluate(x=images,
                         y=labels)
 
 #Imprimir perdida y precision
-for name, value in zip(model2.metrics_names, result):
+for name, value in zip(model.metrics_names, result):
     print(name, value)
 
 #Imprimir solo precision en forma de porcentaje(%)
