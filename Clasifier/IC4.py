@@ -72,7 +72,7 @@ def _process_image(filename, coder):
 
   # Convert any PNG to JPEG's for consistency.
   if _is_png(filename):
-    print('Converting PNG to JPEG for %s' % filename)
+    #print('Converting PNG to JPEG for %s' % filename)
     image_data = coder.png_to_jpeg(image_data)
 
   # Decode the RGB JPEG.
@@ -83,7 +83,8 @@ def _process_image(filename, coder):
   assert image.shape[2] == 1
   
   image = image.flatten()
-  print(image)
+  if(len(image)!=14400):
+    print(filename)
   '''
   image = np.squeeze(np.asarray(image))
   image = np.array2string(image) #array->string
@@ -96,7 +97,7 @@ def _process_image(filename, coder):
 def _find_image_files():
   data_dir = FLAGS.input_directory
   labels_file = FLAGS.labels_file
-  print('Determining list of input files and labels from %s.' % data_dir)
+  #print('Determining list of input files and labels from %s.' % data_dir)
   unique_labels = [l.strip() for l in tf.gfile.GFile(
       labels_file, 'r').readlines()]
 
@@ -126,13 +127,13 @@ def _find_image_files():
   random.seed(12345)
   random.shuffle(shuffled_index)
   
-  print('Image size: %d. Label size: %d.' %(len(images), len(labels)))
+  #print('Image size: %d. Label size: %d.' %(len(images), len(labels)))
   images = [images[i] for i in shuffled_index]
   labels = [labels[i] for i in shuffled_index]
 
-  print('Image size: %d. Label size: %d.' %(len(images), len(labels)))
-  print('Found %d JPEG files across %d labels inside %s.' %
-        (len(images), len(unique_labels), data_dir))
+  #print('Image size: %d. Label size: %d.' %(len(images), len(labels)))
+  #print('Found %d JPEG files across %d labels inside %s.' %
+        #(len(images), len(unique_labels), data_dir))
   return images, labels
 
 def _int64_feature(value):
@@ -142,7 +143,7 @@ def _bytes_feature(value):
 
 def main(unused_argv):
   images, labels =_find_image_files()
-  print('Image size: %d. Label size: %d.' %(len(images), len(labels)))
+  #print('Image size: %d. Label size: %d.' %(len(images), len(labels)))
   
   output_file = FLAGS.output_file  # file to save the TFRecords file
   # open the TFRecords file

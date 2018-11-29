@@ -16,59 +16,6 @@ from tensorflow.python.keras.optimizers import Adam
 import glob
 
 
-images = []
-labels = []
-for serialized_example in tf.python_io.tf_record_iterator('../dataset/OUTPUT/model.tfrecords'):
-    # example = tf.train.Example()
-    # example.ParseFromString(serialized_example)
-    # im = example.features.feature['image'].bytes_list.value
-    # print(im)
-    # print(type(im))
-    # im2 = np.fromstring(im, dtype=int)
-    # im2 = np.fromstring(im, dtype='<f4')
-    # im2 = np.frombuffer(im, dtype=np.uint8)
-    # images = np.append(images,np.array(im2))
-    # print(type(example.features.feature['label'].int64_list.value))
-    # images = np.append(images,np.array(example.features.feature['image'].int64_list.value))
-    # labels = np.append(labels,np.array(example.features.feature['label'].int64_list.value))
-    # print(type(labels[0]))
-
-    feature_set = { 'image': tf.FixedLenFeature([],tf.string),
-                    'label': tf.FixedLenFeature([],tf.int64)
-    }
-    features = tf.parse_single_example(serialized_example,features=feature_set)
-    label = features['label']
-    label = tf.Session().run(label)
-    image = features['image']
-    
-    image = tf.Session().run(image)
-    
-    '''
-    image = image.decode() #bytes->string
-    image = np.fromstring(image,dtype=np.uint8)#string->array
-    '''
-    image = np.frombuffer(image, dtype=np.uint8)
-    
-    ll= np.zeros(2);
-    ll[label] = 1;
-    labels.append(ll) 
-    images.append(image)
-
-images = np.array(images)
-labels = np.array(labels)
-
-
-
-#data = tf.SparseTensor(images=images, labels=labels)
-
-# if (images.ndim == 1):
-#     images = np.array([images])
-# if (labels.ndim == 1):
-#     labels = np.array([labels])
-    
-np.set_printoptions(threshold=np.inf)
-# print(images[0])
-print(labels[0])
 
 # We know that MNIST images are 28 pixels in each dimension.
 img_width = 90
@@ -89,7 +36,40 @@ img_shape_full = (img_height, img_width, 1)
 num_channels = 1
 
 # Number of classes, one class for each of 10 digits.
-num_classes = 2
+num_classes = 4
+
+
+images = []
+labels = []
+for serialized_example in tf.python_io.tf_record_iterator('../dataset/OUTPUT/model.tfrecords'):
+
+    feature_set = { 'image': tf.FixedLenFeature([],tf.string),
+                    'label': tf.FixedLenFeature([],tf.int64)
+    }
+    features = tf.parse_single_example(serialized_example,features=feature_set)
+    label = features['label']
+    label = tf.Session().run(label)
+    image = features['image']
+    
+    image = tf.Session().run(image)
+    
+    image = np.frombuffer(image, dtype=np.uint8)
+    
+    ll= np.zeros(num_classes)
+    ll[label] = 1
+    labels.append(ll) 
+    images.append(image)
+
+images = np.array(images)
+labels = np.array(labels)
+
+p = 0.95
+l = math.floor(p*len(labels))
+
+train_images = images[:l]
+test_images = images[l+1:]
+train_labels = labels[:l]
+test_labels = labels[l+1:]
 
 
 #########################################
@@ -150,13 +130,13 @@ imágenes que debe usar en cada iteración.
 Así como del numero de epochs, es decir, de cuantas veces va a recorrer el conjunto entero de datos para entrenar.
 """
 
-model.fit(x=images,
-          y=labels,
-          epochs=1, batch_size=5) 
+model.fit(x=train_images,
+          y=train_labels,
+          epochs=5, batch_size=100, shuffle=True,validation_split=0.2) #,validation_split=0.2
 
 #Evaluación del modelo
-result = model.evaluate(x=images,
-                        y=labels)
+result = model.evaluate(x=test_images,
+                        y=test_labels)
 
 #Imprimir perdida y precision
 for name, value in zip(model.metrics_names, result):
