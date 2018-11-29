@@ -66,9 +66,9 @@ labels = np.array(labels)
 p = 0.95
 l = math.floor(p*len(labels))
 
-train_images = images[:l]
+general_images= images[:l]
 test_images = images[l+1:]
-train_labels = labels[:l]
+general_labels = labels[:l]
 test_labels = labels[l+1:]
 
 
@@ -130,12 +130,21 @@ imágenes que debe usar en cada iteración.
 Así como del numero de epochs, es decir, de cuantas veces va a recorrer el conjunto entero de datos para entrenar.
 """
 
-model.fit(x=train_images,
+k = 10
+step = math.floor(len(labels)/k)
+for i in range(0,k-1):
+    train_images= general_images[:i*step-1]
+    train_labels= general_labels[:i*step-1]
+    validation_images= general_images[i*step:(i+1)*step-1]
+    validation_labels= general_labels[i*step:(i+1)*step-1]
+    train_images= np.concatenate((train_images, general_images[(i+1)*step:]), axis=0)
+    train_labels= np.concatenate((train_labels, general_labels[(i+1)*step:]), axis=0)
+    model.fit(x=train_images,
           y=train_labels,
-          epochs=5, batch_size=100, shuffle=True,validation_split=0.2) #,validation_split=0.2
+          epochs=5, batch_size=100,verbose=2) #,validation_split=0.2
 
 #Evaluación del modelo
-result = model.evaluate(x=test_images,
+    result = model.evaluate(x=test_images,
                         y=test_labels)
 
 #Imprimir perdida y precision
