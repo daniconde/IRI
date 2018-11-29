@@ -13,9 +13,10 @@
 #include <openssl/md5.h>
 
 
-const std::string datadir = "../../../RADIOGRAFÍAS"; // <<<<<<<<<<<<<<<<<<<<<<<<< Tiene que ser igual para todos
+const std::string datadir = "../../../replace-select"; // <<<<<<<<<<<<<<<<<<<<<<<<< Tiene que ser igual para todos
+const std::string datatrim = "../../../replace-select/trimmed"; // <<<<<<<<<<<<<<<<<<<<<<<<< Tiene que ser igual para todos
 const std::string boxfile = "./boxes.txt";
-const int batches = 3;
+const int batches = 1;
 const int num_batch = 0; // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Diferente para cada uno (0, 1, 2)
 
 
@@ -36,6 +37,7 @@ void draw();
 
 void saveBox();
 void loadFiles(const std::string &directory);
+void saveTrimmedImages();
 int selectImage(int index);
 void mouseCallback(int event, int x, int y, int flags, void* userdata);
 
@@ -112,12 +114,15 @@ int main( int argc, char** argv )
                 currentBox = originalBox;
                 lastClick = cv::Point(-1, -1);
                 change_height = 1;
+            case 'b':
+                saveTrimmedImages();
         }
         draw();
     }
 
     return(0);
 }
+
 
 int scaleDown = 1;
 void draw()
@@ -366,4 +371,67 @@ void loadFiles(const std::string &directory)
     std::cout << "Loaded " << files.size() << " files" << std::endl;
 
     loadBoxes(boxfile);
+}
+
+
+void saveTrimmedImage()
+{
+    // rect is the RotatedRect (I got it from a contour...)
+    // matrices we'll use
+    
+    float aspect_ratio = 90./160.;
+    cv::Mat M, rotated, cropped;
+    cv::RotatedRect rect = currentBox;
+    // get angle and size from the bounding box
+    float angle = rect.angle;
+    cv::Size rect_size = rect.size;
+    std::cout << rect_size << std::endl;
+    if (rect_size.width == 0 || rect_size.height == 0)
+        return;
+    float rect_aspect_ratio = rect_size.width / rect_size.height;
+    if (rect_aspect_ratio < aspect_ratio)
+    {
+        rect_size.width = rect_size.height * aspect_ratio;
+    }
+    else if (rect_aspect_ratio > aspect_ratio)
+    {
+        rect_size.height = rect_size.width / aspect_ratio;
+    }
+    // thanks to http://felix.abecassis.me/2011/10/opencv-rotation-deskewing/
+    if (rect.angle < -45.) {
+        angle += 90.0;
+        std::swap(rect_size.width, rect_size.height);
+    }
+    angle += 180.0;
+    // get the rotation matrix
+    M = cv::getRotationMatrix2D(rect.center, angle, 1.0);
+    // perform the affine transformation
+    std::cout << img.size() << std::endl;
+    cv::warpAffine(img, rotated, M, img.size(), cv::INTER_CUBIC);
+    std::cout << rotated.size() << std::endl;
+    // crop the resulting image
+    cv::getRectSubPix(rotated, rect_size, rect.center, cropped);
+    std::cout << cropped.size() << std::endl;
+
+    cv::Mat resized;
+    cv::resize(cropped, resized, cv::Size(90, 160), 1., 1.);
+
+    bfs::path filename(files[current_file].c_str());
+    bfs::path trimdir(datatrim);
+    bfs::path fullpath = trimdir / filename.filename();
+
+    imwrite(fullpath.string(), resized);
+}
+
+
+void saveTrimmedImages()
+{
+    for (auto i = 0; i < files.size(); ++i)
+    {
+        current_file = i;
+        bfs::path test(files[current_file]);
+        std::cout << i << ": " << test.filename() << std::endl;
+        selectImage(i);
+        saveTrimmedImage();
+    }
 }
