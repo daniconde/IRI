@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 from random import shuffle
 from datetime import datetime
 import os
