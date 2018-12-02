@@ -50,10 +50,9 @@ for serialized_example in tf.python_io.tf_record_iterator('../dataset/OUTPUT/mod
     image = tf.Session().run(image)
     
     image = np.frombuffer(image, dtype=np.uint8)
-
-    print("salida buffer")
-    print(image)
     
+    image = np.reshape(image, img_shape_full)
+
     ll= np.zeros(num_classes)
     ll[label] = 1
     labels.append(ll) 
@@ -61,11 +60,6 @@ for serialized_example in tf.python_io.tf_record_iterator('../dataset/OUTPUT/mod
 
 images = np.array(images)
 labels = np.array(labels)
-
-print(len(images))
-# np.set_printoptions(threshold=np.nan)
-# print(images[0])
-# print(type(images[0]))
 
 x_train, x_test, y_train, y_test = train_test_split(images, labels, test_size=0.1)
 # y_train = np_utils.to_categorical(y_train, num_classes)
@@ -81,8 +75,8 @@ x = GlobalAveragePooling2D()(x)
 predictions = Dense(num_classes, activation='softmax')(x) 
 model = Model(inputs=model.input, outputs=predictions)
 
-
-LAYERS_TO_FREEZE=700
+# TOTAL CAPAS = 782
+LAYERS_TO_FREEZE=300
 for layer in model.layers[:LAYERS_TO_FREEZE]:
     layer.trainable = False
 
