@@ -26,10 +26,10 @@ img_shape = (img_height, img_width)
 
 # Tuple with height, width and depth used to reshape arrays.
 # This is used for reshaping in Keras.
-img_shape_full = (img_height, img_width, 1)
+img_shape_full = (img_height, img_width, 3)
 
 # Number of colour channels for the images: 1 channel for gray-scale.
-num_channels = 1
+num_channels = 3
 
 # Number of classes, one class for each of 10 digits.
 num_classes = 4
@@ -50,6 +50,9 @@ for serialized_example in tf.python_io.tf_record_iterator('../dataset/OUTPUT/mod
     image = tf.Session().run(image)
     
     image = np.frombuffer(image, dtype=np.uint8)
+
+    print("salida buffer")
+    print(image)
     
     ll= np.zeros(num_classes)
     ll[label] = 1
@@ -59,13 +62,18 @@ for serialized_example in tf.python_io.tf_record_iterator('../dataset/OUTPUT/mod
 images = np.array(images)
 labels = np.array(labels)
 
+print(len(images))
+# np.set_printoptions(threshold=np.nan)
+# print(images[0])
+# print(type(images[0]))
+
 x_train, x_test, y_train, y_test = train_test_split(images, labels, test_size=0.1)
-y_train = np_utils.to_categorical(y_train, num_classes)
-y_test = np_utils.to_categorical(y_test, num_classes)
+# y_train = np_utils.to_categorical(y_train, num_classes)
+# y_test = np_utils.to_categorical(y_test, num_classes)
 
 # Cargar modelo preentrenado
 inp = Input(shape=img_shape_full)
-model = InceptionResNetV2(weights='imagenet', include_top=False, input_shape=inp)
+model = InceptionResNetV2(weights='imagenet', include_top=False, input_shape=img_shape_full, input_tensor=inp)
 
 # Anadir capa para nuestro numero de clases
 x = model.output 
