@@ -12,10 +12,8 @@ from tensorflow.python.keras.layers import Reshape, MaxPooling2D
 from tensorflow.python.keras.layers import Conv2D, Dense, Flatten
 
 from sklearn.model_selection import train_test_split
-
-
 import tensorflow as tf
-from tensorflow.python.keras.optimizers import Adam, SGD
+from tensorflow.python.keras.optimizers import Adam
 
 import glob
 
@@ -26,7 +24,7 @@ img_width = 90
 img_height = 160
 
 # Images are stored in one-dimensional arrays of this length.
-img_size_flat = img_width * img_height
+img_size_flat = img_width * img_height * 3
 
 # Tuple with height and width of images used to reshape arrays.
 # This is used for plotting the images.
@@ -34,10 +32,10 @@ img_shape = (img_height, img_width)
 
 # Tuple with height, width and depth used to reshape arrays.
 # This is used for reshaping in Keras.
-img_shape_full = (img_height, img_width, 1)
+img_shape_full = (img_height, img_width, 3)
 
 # Number of colour channels for the images: 1 channel for gray-scale.
-num_channels = 1
+num_channels = 3
 
 # Number of classes, one class for each of 10 digits.
 num_classes = 4
@@ -45,7 +43,7 @@ num_classes = 4
 
 images = []
 labels = []
-for serialized_example in tf.python_io.tf_record_iterator('../dataset/OUTPUT/model.tfrecords'):
+for serialized_example in tf.python_io.tf_record_iterator('../../dataset/OUTPUT/model.tfrecords'):
 
     feature_set = { 'image': tf.FixedLenFeature([],tf.string),
                     'label': tf.FixedLenFeature([],tf.int64)
@@ -58,26 +56,17 @@ for serialized_example in tf.python_io.tf_record_iterator('../dataset/OUTPUT/mod
     image = tf.Session().run(image)
     
     image = np.frombuffer(image, dtype=np.uint8)
-    # print(image)
-    image = image.astype(float)
-    # print(image)
+
+    image = np.reshape(image, img_shape_full)
+    
     ll= np.zeros(num_classes)
     ll[label] = 1
-
-    # for i in range(100):
-    #     labels.append(ll) 
-    #     images.append(image)
-    
     labels.append(ll) 
     images.append(image)
 
 images = np.array(images)
 labels = np.array(labels)
 
-# print(images[0])
-# print(type(images[0]))
-# print(images[0][0])
-# print(type(images[0][0]))
 # p = 0.95
 # l = math.floor(p*len(labels))
 
@@ -102,7 +91,7 @@ model = Sequential()
 
 # Agrega una capa de entrada que es similar a un feed_dict en TensorFlow.
 # Tenga en cuenta que la forma de entrada debe ser una tupla que contenga el tamaño de la imagen.
-model.add(InputLayer(input_shape=(img_size_flat,)))
+model.add(InputLayer(input_shape=img_shape_full))
 
 # La entrada es una matriz aplanada con 784 elementos (img_size * img_size),
 # pero las capas convolucionales esperan imágenes con forma (28, 28, 1), por tanto hacemos un reshape
@@ -134,7 +123,7 @@ model.add(Dense(num_classes, activation='softmax'))
 ############COMPILACION MODELO###########
 #########################################
 
-optimizer = Adam(lr=1e-8)
+optimizer = Adam(lr=1e-3)
 
 model.compile(optimizer=optimizer,
               loss='categorical_crossentropy',
@@ -160,17 +149,18 @@ Así como del numero de epochs, es decir, de cuantas veces va a recorrer el conj
 #           y=train_labels,
 #           epochs=5, batch_size=100,verbose=2) #,validation_split=0.2
 
-model.fit(x_train, y_train, batch_size=5, epochs=1, verbose=1, validation_split=0.1)
+
+model.fit(x_train, y_train, batch_size=16, epochs=1000, verbose=1, validation_split=0.1)
+
+#Evaluación del modelo
+    # result = model.evaluate(x=test_images,
+    #                     y=test_labels)
 
 score = model.evaluate(x_test, y_test, verbose=0)
 
 print ('Testing set accuracy:', score[1]) 
 
-#Evaluación del modelo
-#     result = model.evaluate(x=test_images,
-#                         y=test_labels)
-
-# #Imprimir perdida y precision
+#Imprimir perdida y precision
 # for name, value in zip(model.metrics_names, result):
 #     print(name, value)
 
@@ -181,12 +171,10 @@ print ('Testing set accuracy:', score[1])
 #########################################
 ############PREDICCION###################
 #########################################
+'''
+images = images[0:9]
 
-images = images[0:15]
-
-y_true = labels[0:15]
-
-cls_true = np.argmax(y_true,axis=1)
+cls_true = dataset.cls[0:1]
 
 y_pred = model.predict(x=images)
 
@@ -194,6 +182,4 @@ y_pred = model.predict(x=images)
 cls_pred = np.argmax(y_pred,axis=1)
 print(cls_pred)
 print(cls_true)
-print(y_pred)
-print(y_true)
-
+'''

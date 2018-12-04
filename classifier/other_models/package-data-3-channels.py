@@ -11,11 +11,11 @@ import glob
 import numpy as np
 import tensorflow as tf
 
-tf.app.flags.DEFINE_string('input_directory', '../dataset/INPUT',
+tf.app.flags.DEFINE_string('input_directory', '../../dataset/INPUT',
                            'Input data directory')
-tf.app.flags.DEFINE_string('output_file', '../dataset/OUTPUT/model.tfrecords',
+tf.app.flags.DEFINE_string('output_file', '../../dataset/OUTPUT/model.tfrecords',
                            'Output file')
-tf.app.flags.DEFINE_string('labels_file', '../dataset/labels_file.txt',
+tf.app.flags.DEFINE_string('labels_file', '../../dataset/labels_file.txt',
                            'Labels file')
 FLAGS = tf.app.flags.FLAGS
 

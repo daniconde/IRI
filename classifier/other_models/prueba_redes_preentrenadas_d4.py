@@ -37,7 +37,7 @@ num_classes = 4
 
 images = []
 labels = []
-for serialized_example in tf.python_io.tf_record_iterator('../dataset/OUTPUT/model.tfrecords'):
+for serialized_example in tf.python_io.tf_record_iterator('../../dataset/OUTPUT/model.tfrecords'):
 
     feature_set = { 'image': tf.FixedLenFeature([],tf.string),
                     'label': tf.FixedLenFeature([],tf.int64)
@@ -55,13 +55,17 @@ for serialized_example in tf.python_io.tf_record_iterator('../dataset/OUTPUT/mod
 
     ll= np.zeros(num_classes)
     ll[label] = 1
-    labels.append(ll) 
-    images.append(image)
+
+    for i in range(4):
+        img = np.rot90(image, i)
+        img = np.reshape(img, img_shape_full)
+        labels.append(ll) 
+        images.append(img)
 
 images = np.array(images)
 labels = np.array(labels)
 
-x_train, x_test, y_train, y_test = train_test_split(images, labels, test_size=0.1)
+images_train, images_test, labels_train, labels_test = train_test_split(images, labels, test_size=0.1)
 # y_train = np_utils.to_categorical(y_train, num_classes)
 # y_test = np_utils.to_categorical(y_test, num_classes)
 
@@ -76,14 +80,14 @@ predictions = Dense(num_classes, activation='softmax')(x)
 model = Model(inputs=model.input, outputs=predictions)
 
 # TOTAL CAPAS = 782
-LAYERS_TO_FREEZE=300
+LAYERS_TO_FREEZE=700
 for layer in model.layers[:LAYERS_TO_FREEZE]:
     layer.trainable = False
 
 model.compile(optimizer="adam", loss='categorical_crossentropy', metrics=['accuracy'])
 
-model.fit(x_train, y_train, batch_size=128, epochs=1, verbose=1, validation_split=0.1)
+model.fit(images_train, labels_train, batch_size=128, epochs=1, verbose=1, validation_split=0.1)
 
-score = model.evaluate(x_test, y_test, verbose=0)
+score = model.evaluate(images_test, labels_test, verbose=0)
 
 print ('Testing set accuracy:', score[1]) 
