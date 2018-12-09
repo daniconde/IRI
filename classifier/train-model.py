@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # %matplotlib inline
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import numpy as np
 import math
 
@@ -13,6 +13,7 @@ from tensorflow.python.keras.layers import Conv2D, Dense, Flatten
 
 from sklearn.model_selection import train_test_split
 
+from skimage.transform import rescale
 
 import tensorflow as tf
 from tensorflow.python.keras.optimizers import Adam, SGD
@@ -40,7 +41,7 @@ img_shape_full = (img_height, img_width, 1)
 num_channels = 1
 
 # Number of classes, one class for each of 10 digits.
-num_classes = 4
+num_classes = 3
 
 
 images = []
@@ -58,35 +59,90 @@ for serialized_example in tf.python_io.tf_record_iterator('../dataset/OUTPUT/mod
     image = tf.Session().run(image)
     
     image = np.frombuffer(image, dtype=np.uint8)
-    # print(image)
-    image = image.astype(float)
-    # print(image)
+    # image = image.astype(float)
+
     ll= np.zeros(num_classes)
     ll[label] = 1
 
-    # for i in range(100):
-    #     labels.append(ll) 
-    #     images.append(image)
-    
-    labels.append(ll) 
     images.append(image)
+    labels.append(ll) 
+
+    # Reshape de la imagen
+    imgResh = np.reshape(image, img_shape_full)
+
+    # Flip Horizontal
+    imgHor = np.fliplr(imgResh)
+    imgHor = imgHor.flatten()
+    images.append(imgHor)
+    labels.append(ll)
+
+    # Flip Vertical
+    imgVer = np.flipud(imgResh)
+    imgVer = imgVer.flatten()
+    images.append(imgVer)
+    labels.append(ll)
+
+    # # Ampliacion
+    # imgScaleOut = rescale(imgResh, scale=2.0, mode='constant')
+    # print(imgScaleOut)
+    # # imgScaleOut = np.reshape(imgScaleOut, img_shape_full)
+    # imgScaleOut = imgScaleOut.flatten()
+    # images.append(imgScaleOut)
+    # labels.append(ll)
+
+    # Rotaciones(no funciona bien!!!)
+    # for i in range(3):
+    #     imgrot = np.rot90(imgr, i+1)
+    #     imgrot = np.reshape(imgrot, img_shape_full)
+    #     imgrot = imgrot.flatten()
+    #     labels.append(ll) 
+    #     images.append(imgrot)
+        
+
 
 images = np.array(images)
 labels = np.array(labels)
 
-# print(images[0])
-# print(type(images[0]))
-# print(images[0][0])
-# print(type(images[0][0]))
-# p = 0.95
-# l = math.floor(p*len(labels))
+def plot_images(images, cls_true, cls_pred=None):
+    assert len(images) == len(cls_true) == 9
 
-# general_images= images[:l]
-# test_images = images[l+1:]
-# general_labels = labels[:l]
-# test_labels = labels[l+1:]
+    # Create figure with 3x3 sub-plots.
+    fig, axes = plt.subplots(3, 3)
+    fig.subplots_adjust(hspace=0.3, wspace=0.3)
 
-x_train, x_test, y_train, y_test = train_test_split(images, labels, test_size=0.1)
+    for i, ax in enumerate(axes.flat):
+        # Plot image.
+        ax.imshow(images[i].reshape(img_shape), cmap='binary')
+
+        # Show true and predicted classes.
+        if cls_pred is None:
+            xlabel = "True: {0}".format(cls_true[i])
+        else:
+            xlabel = "True: {0}, Pred: {1}".format(cls_true[i], cls_pred[i])
+
+        # Show the classes as the label on the x-axis.
+        ax.set_xlabel(xlabel)
+
+        # Remove ticks from the plot.
+        ax.set_xticks([])
+        ax.set_yticks([])
+
+    # Ensure the plot is shown correctly with multiple plots
+    # in a single Notebook cell.
+    plt.show()
+
+# Get the first images from the test-set.
+imgs = images[0:9]
+
+# Get the true classes for those images.
+lbls = labels[0:9]
+lbls = np.argmax(lbls,axis=1)
+
+# Plot the images and labels using our helper-function above.
+plot_images(images=imgs, cls_true=lbls)
+
+
+images_train, images_test, labels_train, labels_test = train_test_split(images, labels, test_size=0.1)
 
 
 #########################################
@@ -160,17 +216,15 @@ Así como del numero de epochs, es decir, de cuantas veces va a recorrer el conj
 #           y=train_labels,
 #           epochs=5, batch_size=100,verbose=2) #,validation_split=0.2
 
-model.fit(x_train, y_train, batch_size=5, epochs=1, verbose=1, validation_split=0.1)
+model.fit(images_train, labels_train, batch_size=5, epochs=5, verbose=1, validation_split=0.1)
 
-score = model.evaluate(x_test, y_test, verbose=0)
+# Evaluación del modelo
 
-print ('Testing set accuracy:', score[1]) 
+result = model.evaluate(images_test, labels_test, verbose=0)
 
-#Evaluación del modelo
-#     result = model.evaluate(x=test_images,
-#                         y=test_labels)
+print ('Testing set accuracy:', result[1]) 
 
-# #Imprimir perdida y precision
+# Imprimir perdida y precision
 # for name, value in zip(model.metrics_names, result):
 #     print(name, value)
 
@@ -182,18 +236,18 @@ print ('Testing set accuracy:', score[1])
 ############PREDICCION###################
 #########################################
 
-images = images[0:15]
+imgs = images[0:15]
 
-y_true = labels[0:15]
+labels_true = labels[0:15]
 
-cls_true = np.argmax(y_true,axis=1)
+cls_true = np.argmax(labels_true,axis=1)
 
-y_pred = model.predict(x=images)
+labels_pred = model.predict(x=imgs)
 
 #Pasar clases predecidas a enteros
-cls_pred = np.argmax(y_pred,axis=1)
-print(cls_pred)
+cls_pred = np.argmax(labels_pred,axis=1)
+print("Classes true")
 print(cls_true)
-print(y_pred)
-print(y_true)
+print("Prediction")
+print(cls_pred)
 
