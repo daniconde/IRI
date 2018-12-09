@@ -13,7 +13,7 @@ from tensorflow.python.keras.layers import Conv2D, Dense, Flatten
 
 from sklearn.model_selection import train_test_split
 
-from skimage.transform import rescale
+from skimage.transform import rescale, resize
 
 import tensorflow as tf
 from tensorflow.python.keras.optimizers import Adam, SGD
@@ -43,6 +43,44 @@ num_channels = 1
 # Number of classes, one class for each of 10 digits.
 num_classes = 3
 
+def checkSize(size):
+    if type(size) == int:
+        size = (size, size)
+    if type(size) != tuple:
+        raise TypeError('size is int or tuple')
+    return size
+
+
+def centerCrop(image, crop_size):
+    crop_size = checkSize(crop_size)
+    h, w, _ = image.shape
+    top = (h - crop_size[0]) // 2
+    left = (w - crop_size[1]) // 2
+    bottom = top + crop_size[0]
+    right = left + crop_size[1]
+    image = image[top:bottom, left:right, :]
+    return image
+
+
+def randomCrop(image, crop_size):
+    crop_size = checkSize(crop_size)
+    h, w, _ = image.shape
+    top = np.random.randint(0, h - crop_size[0])
+    left = np.random.randint(0, w - crop_size[1])
+    bottom = top + crop_size[0]
+    right = left + crop_size[1]
+    image = image[top:bottom, left:right, :]
+    return image
+
+def scaleAugmentation(image, scale_range, crop_size):
+    scale_size = np.random.randint(*scale_range)
+    # image = imresize(image, (scale_size, scale_size))
+    image = resize(image, (scale_size, scale_size))
+    image = centerCrop(image, crop_size)
+    return image
+
+# scaleAugmentation(inimg, (256, 480), 224)
+# imgScaleOut = resize(imgScaleOut, img_shape_full)
 
 images = []
 labels = []
@@ -82,13 +120,14 @@ for serialized_example in tf.python_io.tf_record_iterator('../dataset/OUTPUT/mod
     images.append(imgVer)
     labels.append(ll)
 
-    # # Ampliacion
-    # imgScaleOut = rescale(imgResh, scale=2.0, mode='constant')
-    # print(imgScaleOut)
-    # # imgScaleOut = np.reshape(imgScaleOut, img_shape_full)
-    # imgScaleOut = imgScaleOut.flatten()
-    # images.append(imgScaleOut)
-    # labels.append(ll)
+    # Ampliacion
+    # imgScaleOut = rescale(imgResh, scale=2.0, anti_aliasing=False)
+    imgScaleAug = scaleAugmentation(imgResh, (64, 120), 60)
+    imgScaleAug = resize(imgScaleAug, img_shape_full)
+    # imgScaleAug = np.reshape(imgScaleAug, img_shape_full)
+    imgScaleAug = imgScaleAug.flatten()
+    images.append(imgScaleAug)
+    labels.append(ll)
 
     # Rotaciones(no funciona bien!!!)
     # for i in range(3):
@@ -216,7 +255,7 @@ Así como del numero de epochs, es decir, de cuantas veces va a recorrer el conj
 #           y=train_labels,
 #           epochs=5, batch_size=100,verbose=2) #,validation_split=0.2
 
-model.fit(images_train, labels_train, batch_size=5, epochs=5, verbose=1, validation_split=0.1)
+model.fit(images_train, labels_train, batch_size=5, epochs=30, verbose=1, validation_split=0.1)
 
 # Evaluación del modelo
 
