@@ -41,7 +41,7 @@ img_shape_full = (img_height, img_width, 1)
 num_channels = 1
 
 # Number of classes, one class for each of 10 digits.
-num_classes = 3
+num_classes = 4
 
 def checkSize(size):
     if type(size) == int:
@@ -102,40 +102,56 @@ for serialized_example in tf.python_io.tf_record_iterator('../dataset/OUTPUT/mod
     ll= np.zeros(num_classes)
     ll[label] = 1
 
+    # Original
     images.append(image)
     labels.append(ll) 
 
-    # Reshape de la imagen
+    # Reshape de la imagen original
     imgResh = np.reshape(image, img_shape_full)
 
     # Flip Horizontal
     imgHor = np.fliplr(imgResh)
+    imgHorCopy = imgHor
     imgHor = imgHor.flatten()
     images.append(imgHor)
     labels.append(ll)
 
     # Flip Vertical
     imgVer = np.flipud(imgResh)
+    imgVerCopy = imgVer
     imgVer = imgVer.flatten()
     images.append(imgVer)
     labels.append(ll)
 
-    # Ampliacion
-    # imgScaleOut = rescale(imgResh, scale=2.0, anti_aliasing=False)
+    # Ampliacion Original
     imgScaleAug = scaleAugmentation(imgResh, (64, 120), 60)
     imgScaleAug = resize(imgScaleAug, img_shape_full)
-    # imgScaleAug = np.reshape(imgScaleAug, img_shape_full)
     imgScaleAug = imgScaleAug.flatten()
     images.append(imgScaleAug)
     labels.append(ll)
 
-    # Rotaciones(no funciona bien!!!)
-    # for i in range(3):
-    #     imgrot = np.rot90(imgr, i+1)
-    #     imgrot = np.reshape(imgrot, img_shape_full)
-    #     imgrot = imgrot.flatten()
-    #     labels.append(ll) 
-    #     images.append(imgrot)
+    # Ampliacion Flip Horizontal
+    imgScaleAug = scaleAugmentation(imgHorCopy, (64, 120), 60)
+    imgScaleAug = resize(imgScaleAug, img_shape_full)
+    imgScaleAug = imgScaleAug.flatten()
+    images.append(imgScaleAug)
+    labels.append(ll)
+
+    # Ampliacion Flip Vertical
+    imgScaleAug = scaleAugmentation(imgVerCopy, (64, 120), 60)
+    imgScaleAug = resize(imgScaleAug, img_shape_full)
+    imgScaleAug = imgScaleAug.flatten()
+    images.append(imgScaleAug)
+    labels.append(ll)
+
+    # Rotaciones
+    for i in range(3):
+        imgrot = np.rot90(imgResh, i+1)
+        # imgrot = np.reshape(imgrot, img_shape_full)
+        imgrot = resize(imgrot, img_shape_full)
+        imgrot = imgrot.flatten()
+        images.append(imgrot)
+        labels.append(ll) 
         
 
 
@@ -290,3 +306,5 @@ print(cls_true)
 print("Prediction")
 print(cls_pred)
 
+# labels_pred = model.predict(x=imgs, verbose=1)
+# print(labels_pred)
