@@ -12,8 +12,11 @@ from tensorflow.python.keras.layers import Reshape, MaxPooling2D
 from tensorflow.python.keras.layers import Conv2D, Dense, Flatten
 
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix
 
-from skimage.transform import rescale, resize
+import random
+
+#from skimage.transform import rescale, resize
 
 import tensorflow as tf
 from tensorflow.python.keras.optimizers import Adam, SGD
@@ -72,12 +75,33 @@ def randomCrop(image, crop_size):
     image = image[top:bottom, left:right, :]
     return image
 
-def scaleAugmentation(image, scale_range, crop_size):
-    scale_size = np.random.randint(*scale_range)
-    # image = imresize(image, (scale_size, scale_size))
-    image = resize(image, (scale_size, scale_size))
-    image = centerCrop(image, crop_size)
-    return image
+
+def print_confusion_matrix(cls_true, cls_pred):
+    # Get the confusion matrix using sklearn.
+    cm = confusion_matrix(y_true=cls_true,
+                          y_pred=cls_pred)
+
+    # Print the confusion matrix as text.
+    print(cm)
+
+    # Plot the confusion matrix as an image.
+    plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
+
+    # Make various adjustments to the plot.
+    plt.tight_layout()
+    plt.colorbar()
+    tick_marks = np.arange(num_classes)
+    plt.xticks(tick_marks, range(num_classes))
+    plt.yticks(tick_marks, range(num_classes))
+    plt.xlabel('Predicted')
+    plt.ylabel('True')
+
+#def scaleAugmentation(image, scale_range, crop_size):
+#    scale_size = np.random.randint(*scale_range)
+#    # image = imresize(image, (scale_size, scale_size))
+#    image = resize(image, (scale_size, scale_size))
+#    image = centerCrop(image, crop_size)
+#    return image
 
 # scaleAugmentation(inimg, (256, 480), 224)
 # imgScaleOut = resize(imgScaleOut, img_shape_full)
@@ -106,98 +130,127 @@ for serialized_example in tf.python_io.tf_record_iterator('../dataset/OUTPUT/mod
     images.append(image)
     labels.append(ll) 
 
+
+print("asdasdasdasd")
+
+shuffled_index = list(range(len(images)))
+random.seed(123124234)
+random.shuffle(shuffled_index)
+
+#print('Image size: %d. Label size: %d.' %(len(images), len(labels)))
+images = [images[i] for i in shuffled_index]
+labels = [labels[i] for i in shuffled_index]
+print(labels)
+images_train, images_test, labels_train, labels_test = train_test_split(images, labels, test_size=0.1)
+print(labels_train)
+print(labels_test)
+
+
+
+
+
+
+print("qweqweqweqweq")
+
+for i in range(len(images_train)):
+
+    img = images_train[i]
+    l = labels_train[i]
+
     # Reshape de la imagen original
-    imgResh = np.reshape(image, img_shape_full)
+    imgResh = np.reshape(img, img_shape_full)
 
     # Flip Horizontal
     imgHor = np.fliplr(imgResh)
     imgHorCopy = imgHor
     imgHor = imgHor.flatten()
-    images.append(imgHor)
-    labels.append(ll)
+    images_train.append(imgHor)
+    labels_train.append(l)
 
-    # Flip Vertical
-    imgVer = np.flipud(imgResh)
-    imgVerCopy = imgVer
-    imgVer = imgVer.flatten()
-    images.append(imgVer)
-    labels.append(ll)
+#    # Flip Vertical
+#    imgVer = np.flipud(imgResh)
+#    imgVerCopy = imgVer
+#    imgVer = imgVer.flatten()
+#    images_train.append(imgVer)
+#    labels_train.append(l)
 
-    # Ampliacion Original
-    imgScaleAug = scaleAugmentation(imgResh, (64, 120), 60)
-    imgScaleAug = resize(imgScaleAug, img_shape_full)
-    imgScaleAug = imgScaleAug.flatten()
-    images.append(imgScaleAug)
-    labels.append(ll)
+#    # Ampliacion Original
+#    imgScaleAug = scaleAugmentation(imgResh, (64, 120), 60)
+#    imgScaleAug = resize(imgScaleAug, img_shape_full)
+#    imgScaleAug = imgScaleAug.flatten()
+#    images_train.append(imgScaleAug)
+#    labels_train.append(l)
+#
+#    # Ampliacion Flip Horizontal
+#    imgScaleAug = scaleAugmentation(imgHorCopy, (64, 120), 60)
+#    imgScaleAug = resize(imgScaleAug, img_shape_full)
+#    imgScaleAug = imgScaleAug.flatten()
+#    images_train.append(imgScaleAug)
+#    labels_train.append(l)
+#
+#    # Ampliacion Flip Vertical
+#    imgScaleAug = scaleAugmentation(imgVerCopy, (64, 120), 60)
+#    imgScaleAug = resize(imgScaleAug, img_shape_full)
+#    imgScaleAug = imgScaleAug.flatten()
+#    images_train.append(imgScaleAug)
+#    labels_train.append(l)
 
-    # Ampliacion Flip Horizontal
-    imgScaleAug = scaleAugmentation(imgHorCopy, (64, 120), 60)
-    imgScaleAug = resize(imgScaleAug, img_shape_full)
-    imgScaleAug = imgScaleAug.flatten()
-    images.append(imgScaleAug)
-    labels.append(ll)
+#    # Rotaciones
+#    for i in range(3):
+#        imgrot = np.rot90(imgResh, i+1)
+#        # imgrot = np.reshape(imgrot, img_shape_full)
+#        imgrot = resize(imgrot, img_shape_full)
+#        imgrot = imgrot.flatten()
+#        images_train.append(imgrot)
+#        labels_train.append(l) 
 
-    # Ampliacion Flip Vertical
-    imgScaleAug = scaleAugmentation(imgVerCopy, (64, 120), 60)
-    imgScaleAug = resize(imgScaleAug, img_shape_full)
-    imgScaleAug = imgScaleAug.flatten()
-    images.append(imgScaleAug)
-    labels.append(ll)
+print("xcvxcvxcv")
 
-    # Rotaciones
-    for i in range(3):
-        imgrot = np.rot90(imgResh, i+1)
-        # imgrot = np.reshape(imgrot, img_shape_full)
-        imgrot = resize(imgrot, img_shape_full)
-        imgrot = imgrot.flatten()
-        images.append(imgrot)
-        labels.append(ll) 
-        
-
-
-images = np.array(images)
-labels = np.array(labels)
-
-def plot_images(images, cls_true, cls_pred=None):
-    assert len(images) == len(cls_true) == 9
-
-    # Create figure with 3x3 sub-plots.
-    fig, axes = plt.subplots(3, 3)
-    fig.subplots_adjust(hspace=0.3, wspace=0.3)
-
-    for i, ax in enumerate(axes.flat):
-        # Plot image.
-        ax.imshow(images[i].reshape(img_shape), cmap='binary')
-
-        # Show true and predicted classes.
-        if cls_pred is None:
-            xlabel = "True: {0}".format(cls_true[i])
-        else:
-            xlabel = "True: {0}, Pred: {1}".format(cls_true[i], cls_pred[i])
-
-        # Show the classes as the label on the x-axis.
-        ax.set_xlabel(xlabel)
-
-        # Remove ticks from the plot.
-        ax.set_xticks([])
-        ax.set_yticks([])
-
-    # Ensure the plot is shown correctly with multiple plots
-    # in a single Notebook cell.
-    plt.show()
-
-# Get the first images from the test-set.
-imgs = images[0:9]
-
-# Get the true classes for those images.
-lbls = labels[0:9]
-lbls = np.argmax(lbls,axis=1)
-
-# Plot the images and labels using our helper-function above.
-plot_images(images=imgs, cls_true=lbls)
+images_train = np.array(images_train)
+labels_train = np.array(labels_train)
+images_test = np.array(images_test)
+labels_test = np.array(labels_test)
 
 
-images_train, images_test, labels_train, labels_test = train_test_split(images, labels, test_size=0.1)
+print("poipoipoipoi")
+#def plot_images(images, cls_true, cls_pred=None):
+#    assert len(images) == len(cls_true) == 9
+#
+#    # Create figure with 3x3 sub-plots.
+#    fig, axes = plt.subplots(3, 3)
+#    fig.subplots_adjust(hspace=0.3, wspace=0.3)
+#
+#    for i, ax in enumerate(axes.flat):
+#        # Plot image.
+#        ax.imshow(images[i].reshape(img_shape), cmap='binary')
+#
+#        # Show true and predicted classes.
+#        if cls_pred is None:
+#            xlabel = "True: {0}".format(cls_true[i])
+#        else:
+#            xlabel = "True: {0}, Pred: {1}".format(cls_true[i], cls_pred[i])
+#
+#        # Show the classes as the label on the x-axis.
+#        ax.set_xlabel(xlabel)
+#
+#        # Remove ticks from the plot.
+#        ax.set_xticks([])
+#        ax.set_yticks([])
+#
+#    # Ensure the plot is shown correctly with multiple plots
+#    # in a single Notebook cell.
+#    plt.show()
+#
+## Get the first images from the test-set.
+#imgs = images[0:9]
+#
+## Get the true classes for those images.
+#lbls = labels[0:9]
+#lbls = np.argmax(lbls,axis=1)
+#
+## Plot the images and labels using our helper-function above.
+#plot_images(images=imgs, cls_true=lbls)
+
 
 
 #########################################
@@ -271,7 +324,8 @@ Así como del numero de epochs, es decir, de cuantas veces va a recorrer el conj
 #           y=train_labels,
 #           epochs=5, batch_size=100,verbose=2) #,validation_split=0.2
 
-model.fit(images_train, labels_train, batch_size=5, epochs=30, verbose=1, validation_split=0.1)
+model.fit(images_train, labels_train, batch_size=5, epochs=2, verbose=1, validation_split=0.1)
+model.save('last_model.h5') 
 
 # Evaluación del modelo
 
@@ -291,20 +345,16 @@ print ('Testing set accuracy:', result[1])
 ############PREDICCION###################
 #########################################
 
-imgs = images[0:15]
-
-labels_true = labels[0:15]
+imgs = images_test
+labels_true = labels_test
 
 cls_true = np.argmax(labels_true,axis=1)
-
+print(cls_true)
 labels_pred = model.predict(x=imgs)
 
 #Pasar clases predecidas a enteros
 cls_pred = np.argmax(labels_pred,axis=1)
-print("Classes true")
-print(cls_true)
-print("Prediction")
 print(cls_pred)
 
-# labels_pred = model.predict(x=imgs, verbose=1)
-# print(labels_pred)
+print_confusion_matrix(cls_pred, cls_true)
+
