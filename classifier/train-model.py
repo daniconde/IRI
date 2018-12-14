@@ -44,7 +44,7 @@ img_shape_full = (img_height, img_width, 1)
 num_channels = 1
 
 # Number of classes, one class for each of 10 digits.
-num_classes = 4
+num_classes = 5
 
 def checkSize(size):
     if type(size) == int:
@@ -324,8 +324,9 @@ Así como del numero de epochs, es decir, de cuantas veces va a recorrer el conj
 #           y=train_labels,
 #           epochs=5, batch_size=100,verbose=2) #,validation_split=0.2
 
-model.fit(images_train, labels_train, batch_size=5, epochs=2, verbose=1, validation_split=0.1)
-model.save('last_model.h5') 
+model.fit(images_train, labels_train, batch_size=5, epochs=5, verbose=1, validation_split=0.1)
+# model.save('last1_model.h5') 
+model.save_weights('model_weights.h5')
 
 # Evaluación del modelo
 
