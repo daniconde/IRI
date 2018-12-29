@@ -142,10 +142,10 @@ def buttonOpenFilePressed(routeText, lblImageSelected):
 def buttonPredictPressed(routeText):
 	file = routeText.get()
 	image = cv2.imread(file)
-	grayImage = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-	cv2.imshow("Show", grayImage)
+	# grayImage = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+	cv2.imshow("Show", image)
 	cv2.waitKey(0)
-	pred = makePrediction(grayImage)
+	pred = makePrediction(image)
 
 
 def initializeFrameImageSelected():
@@ -178,5 +178,5 @@ if __name__ == '__main__':
 	root = Tk()
 	frameMainMenu = Frame(root)
 	frameImageSelected = Frame(root)
-	icon = PhotoImage(file = "images\\icon_implant.png")
+	icon = PhotoImage(file = "presentation\\images\\icon_implant.png")
 	main()

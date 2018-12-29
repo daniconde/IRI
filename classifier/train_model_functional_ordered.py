@@ -6,14 +6,13 @@ import numpy as np
 import math
 
 ## Import the keras API
-from tensorflow.python.keras.models import Sequential, Model
+from tensorflow.python.keras.models import Sequential, Model, load_model
 from tensorflow.python.keras.layers import InputLayer, Input
 from tensorflow.python.keras.layers import Reshape, MaxPooling2D
 from tensorflow.python.keras.layers import Conv2D, Dense, Flatten
 from tensorflow.python.keras.callbacks import EarlyStopping
 
 from skimage.transform import rescale, resize
-
 
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix
@@ -314,7 +313,7 @@ def trainModel():
 
   model.fit(images_train, labels_train, batch_size=5, epochs=30, verbose=1, validation_split=0.1, callbacks=[cb])
   # model.fit(images_train, labels_train, batch_size=5, epochs=15, verbose=1, validation_split=0.1)
-  model.save('model.keras')
+  model.save('classifier/model.keras')
 
   # Evaluación del modelo
   result = model.evaluate(images_test, labels_test, verbose=0)
@@ -332,7 +331,7 @@ def trainModel():
 def testModel():
   imgs = images_test
   labels_true = labels_test
-  model = load_model('model.keras')
+  model = load_model('classifier/model.keras')
 
   cls_true = np.argmax(labels_true,axis=1)
   print(cls_true)
@@ -361,10 +360,10 @@ def retrainModel():
   convert2NPArray()
 
   cb = EarlyStopping(monitor='acc', min_delta=0.005, patience=0)
-  model = load_model('model.keras')
+  model = load_model('classifier/model.keras')
   # model.fit(images_train, labels_train, batch_size=5, epochs=15, verbose=1, validation_split=0.1, callbacks=[cb])
   model.fit(images_train, labels_train, batch_size=5, epochs=15, verbose=1, validation_split=0.1)
-  model.save('model.keras')
+  model.save('classifier/model.keras')
   # Evaluación del modelo
   result = model.evaluate(images_test, labels_test, verbose=0)
   print ('Testing set accuracy:', result[1])
@@ -373,7 +372,8 @@ def retrainModel():
 
 
 def makePrediction(image):
-  model = load_model('model.keras')
+  print(type(image))
+  model = load_model('classifier/model.keras')
   pred = model.predict(x=image)
   print(pred)
   return pred
