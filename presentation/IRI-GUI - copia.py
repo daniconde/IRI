@@ -7,10 +7,10 @@ from PIL import Image
 
 
 
-def cropImage(file):
+def cropImage(image):
 	# Read image
 	# im = cv2.imread(file, cv2.IMREAD_GRAYSCALE)
-	image = cv2.imread(file)
+	# image = cv2.imread(file)
 	
 	grayImage = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -25,6 +25,7 @@ def cropImage(file):
 	cv2.imshow("Image", imCrop)
 	cv2.waitKey(0)
 	cv2.destroyAllWindows()
+	return imCrop
 
 def rotateImage(file):
 	# Read image
@@ -57,10 +58,38 @@ def rotateImage(file):
 
 	# loop over the rotation angles again, this time ensure the
 	# entire pill is still within the ROI after rotation
-	for angle in np.arange(0, 360, 15):
+	# for angle in np.arange(0, 360, 15):
+	# 	rotated = imutils.rotate_bound(imageROI, angle)
+	# 	cv2.imshow("Rotated (Correct)", rotated)
+	# 	cv2.waitKey(0)
+
+	angle = 0
+	f = True
+	# k = 27 --> ESC
+	while (f):
 		rotated = imutils.rotate_bound(imageROI, angle)
-		cv2.imshow("Rotated (Correct)", rotated)
-		cv2.waitKey(0)
+		cv2.namedWindow("Rotated", cv2.WINDOW_AUTOSIZE)
+		# cv2.resizeWindow("Rotated", 500, 500)
+		# cv2.moveWindow("Rotated", 100, 100)
+		cv2.imshow("Rotated", rotated)
+		k = cv2.waitKey(0)
+		if (k == ord('d')):
+			angle += 15
+		if (k == ord('a')):
+			angle -= 15
+		if k == 27:
+			cv2.destroyAllWindows()
+			f = False
+		if k == ord('o'):
+			cv2.destroyAllWindows()
+			f = False
+			return True, rotated
+	return False, None
+
+	# if k == 27:
+	# 	cv2.destroyAllWindows()
+	# elif k == ord('\n'):
+	# 	cv2.destroyAllWindows()
 
 def openFile():
 	file = filedialog.askopenfilename(title="Abrir", initialdir="c:", filetypes=(("Ficheros PNG", "*.png"), ("Ficheros JPG", "*.jpg"), ("Todos los ficheros", "*.*")))
@@ -71,7 +100,12 @@ def openFile():
 
 def buttonPredictPressed():
 	file = openFile()
-	cropImage(file)
+	result, imageRotated = rotateImage(file)
+	if result:
+		imageCropped = cropImage(imageRotated)
+		imageResized = cv2.resize(imageCropped, (90, 160))
+		cv2.imshow("Resized", imageResized)
+		print(type(imageResized)) 
 
 def initializeRoot():
 	# root.attributes('-fullscreen', True)
