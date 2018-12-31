@@ -372,10 +372,15 @@ def retrainModel():
 
 
 def makePrediction(image):
-  print(type(image))
+  imgs = []
+  imgs.append(image)
+  imgs = np.array(imgs) 
   model = load_model('classifier/model.keras')
-  pred = model.predict(x=image)
+  pred = model.predict(x=imgs)
   print(pred)
+  #Pasar clases predecidas a enteros
+  cls_pred = np.argmax(pred,axis=1)
+  print(cls_pred)
   return pred
 
 

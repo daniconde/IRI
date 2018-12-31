@@ -95,6 +95,35 @@ def _process_image(filename, coder):
   image = image.tobytes()
   return image
 
+
+
+
+def convertOneImage(filename):
+  coder = ImageCoder()
+  
+  # Read the image file.
+  with tf.gfile.GFile(filename, 'rb') as f:
+    image_data = f.read()
+
+  # Convert any PNG to JPEG's for consistency.
+  if _is_png(filename):
+    #print('Converting PNG to JPEG for %s' % filename)
+    image_data = coder.png_to_jpeg(image_data)
+
+  # Decode the RGB JPEG.
+  image = coder.decode_jpeg(image_data)
+
+  # Check that image converted to RGB
+  assert len(image.shape) == 3
+  assert image.shape[2] == 1
+  
+  image = image.flatten()
+  if(len(image)!=14400):
+    print(filename)
+
+  return image
+
+
 #REURNS IMAGES AND LABELS ARRAYS
 def _find_image_files():
   data_dir = FLAGS.input_directory

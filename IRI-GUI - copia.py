@@ -1,4 +1,5 @@
 from classifier.train_model_functional_ordered import *
+from classifier.package_data import *
 from tkinter import *
 from tkinter import filedialog
 import cv2
@@ -140,10 +141,14 @@ def buttonOpenFilePressed(routeText, lblImageSelected):
 
 def buttonPredictPressed(routeText):
 	file = routeText.get()
-	image = cv2.imread(file)
+	image = convertOneImage(file)
+	print(type(image))
+	print(image)
+	# image = cv2.imread(file)
 	# grayImage = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-	cv2.imshow("Show", image)
-	cv2.waitKey(0)
+	# cv2.imshow("Show", grayImage)
+	# cv2.waitKey(0)
+	# grayImage = grayImage.flatten()
 	pred = makePrediction(image)
 
 
