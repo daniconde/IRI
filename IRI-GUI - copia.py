@@ -120,10 +120,9 @@ def initializeRoot():
 	root.config(bg="blue")
 
 def initializeFrameMainMenu():
-	# filename = PhotoImage(file = "images\\background.png")
-	# background_label = Label(frameMainMenu, image=filename)
-	# background_label.pack(fill=BOTH, expand=1)
-	btnMakePrediction = Button(frameMainMenu, width=200, height=200, image=icon, command=buttonMakePredictionPressed).place(relx=.5, rely=.5, anchor=CENTER)
+	lblBackground = Label(frameMainMenu, image=backgroundImage)
+	lblBackground.pack(fill=BOTH, expand=1)
+	btnMakePrediction = Button(lblBackground, width=200, height=200, image=icon, command=buttonMakePredictionPressed).place(relx=.5, rely=.5, anchor=CENTER)
 	
 def showFrameMainMenu():
 	frameMainMenu.pack(fill=BOTH, expand=1)
@@ -149,15 +148,14 @@ def buttonPredictPressed(routeText):
 
 
 def initializeFrameImageSelected():
-	# filename = PhotoImage(file = "images\\background.png")
-	# background_label = Label(frameMainMenu, image=filename)
-	# background_label.pack(fill=BOTH, expand=1)
+	lblBackground = Label(frameImageSelected, image=backgroundImage)
+	lblBackground.pack(fill=BOTH, expand=1)
 	routeText = StringVar()
-	lblTitleFileSelected = Label(frameImageSelected, text="Ruta archivo:").grid(row=0, column=0)
-	entRouteFileSelected = Entry(frameImageSelected, textvariable=routeText, background="white").grid(row=0, column=1)
-	lblImageSelected = Label(frameImageSelected).grid(row=1, column=0, columnspan=1)
-	btnOpenFile = Button(frameImageSelected, text="Abrir archivo", command=lambda:buttonOpenFilePressed(routeText, lblImageSelected)).grid(row=0, column=3)
-	btnPredict = Button(frameImageSelected, text="Realizar predicción", command=lambda:buttonPredictPressed(routeText)).grid(row=2, column=0)
+	lblTitleFileSelected = Label(lblBackground, text="Ruta archivo:").grid(row=0, column=0)
+	entRouteFileSelected = Entry(lblBackground, textvariable=routeText, background="white").grid(row=0, column=1)
+	lblImageSelected = Label(lblBackground).grid(row=1, column=0, columnspan=1)
+	btnOpenFile = Button(lblBackground, text="Abrir archivo", command=lambda:buttonOpenFilePressed(routeText, lblImageSelected)).grid(row=0, column=3)
+	btnPredict = Button(lblBackground, text="Realizar predicción", command=lambda:buttonPredictPressed(routeText)).grid(row=2, column=0)
 
 	
 def showFrameImageSelected():
@@ -178,5 +176,6 @@ if __name__ == '__main__':
 	root = Tk()
 	frameMainMenu = Frame(root)
 	frameImageSelected = Frame(root)
+	backgroundImage = PhotoImage(file = "presentation\\images\\background.png")
 	icon = PhotoImage(file = "presentation\\images\\icon_implant.png")
 	main()
