@@ -6,6 +6,7 @@ import cv2
 import imutils
 import numpy as np
 from PIL import Image
+import threading
 
 
 
@@ -93,13 +94,6 @@ def rotateImage(file):
 	# elif k == ord('\n'):
 	# 	cv2.destroyAllWindows()
 
-def openFile():
-	file = filedialog.askopenfilename(title="Abrir", initialdir="c:", filetypes=(("Ficheros PNG", "*.png"), ("Ficheros JPG", "*.jpg"), ("Todos los ficheros", "*.*")))
-
-	print(file)
-
-	return file
-
 # def buttonMakePredictionPressed():
 # 	file = openFile()
 # 	result, imageRotated = rotateImage(file)
@@ -109,9 +103,14 @@ def openFile():
 # 		cv2.imshow("Resized", imageResized)
 # 		print(type(imageResized)) 
 
-def buttonMakePredictionPressed():
-	hideFrameMainMenu()
-	showFrameImageSelected()
+def openFile():
+	file = filedialog.askopenfilename(title="Abrir", initialdir="c:", filetypes=(("Ficheros PNG", "*.png"), ("Ficheros JPG", "*.jpg"), ("Todos los ficheros", "*.*")))
+
+	print(file)
+
+	return file
+
+
 
 def initializeRoot():
 	# root.attributes('-fullscreen', True)
@@ -120,55 +119,140 @@ def initializeRoot():
 	# Lo del config se puede poner directament en el constructor
 	root.config(bg="blue")
 
+
+
+def buttonMakePredictionPressed():
+	hideFrameMainMenu()
+	showFrameImageSelected()
+
 def initializeFrameMainMenu():
 	lblBackground = Label(frameMainMenu, image=backgroundImage)
-	lblBackground.pack(fill=BOTH, expand=1)
+	lblBackground.pack(fill=BOTH, expand=True)
+	lblTitle = Label(lblBackground, image=title, bg="#20A099").place(relx=0.5, rely=0.2, anchor=CENTER)
 	btnMakePrediction = Button(lblBackground, width=200, height=200, image=icon, command=buttonMakePredictionPressed).place(relx=.5, rely=.5, anchor=CENTER)
 	
 def showFrameMainMenu():
-	frameMainMenu.pack(fill=BOTH, expand=1)
+	frameMainMenu.pack(fill=BOTH, expand=True)
 
 def hideFrameMainMenu():
 	# Esconder pack_forget() o grid_forget()
 	frameMainMenu.pack_forget()
 
-def buttonOpenFilePressed(routeText, lblImageSelected):
+
+
+def buttonOpenFilePressed(routeText, lblImageSelected, lblBottom2):
 	file = openFile()
 	routeText.set(file)
 	photo = PhotoImage(file=file)
-	lblImageSelected = Label(frameImageSelected, image=photo).grid(row=1, column=0, columnspan=1)
-	lblImageSelected.photo = photo
+	lblImageSelected = Label(lblBottom2, image=photo).pack()
+	lblImageSelected.image = photo
+	showFrameImageSelected()
 
 def buttonPredictPressed(routeText):
 	file = routeText.get()
 	image = convertOneImage(file)
-	print(type(image))
-	print(image)
 	# image = cv2.imread(file)
 	# grayImage = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 	# cv2.imshow("Show", grayImage)
 	# cv2.waitKey(0)
 	# grayImage = grayImage.flatten()
 	pred = makePrediction(image)
-
+	print(pred)
+	print(type(pred))
+	initializeFramePredictionResult(pred)
+	hideFrameImageSelected()
+	showFramePredictionResult()
 
 def initializeFrameImageSelected():
 	lblBackground = Label(frameImageSelected, image=backgroundImage)
-	lblBackground.pack(fill=BOTH, expand=1)
+	lblBackground.pack(fill=BOTH, expand=True)
+	
 	routeText = StringVar()
-	lblTitleFileSelected = Label(lblBackground, text="Ruta archivo:").grid(row=0, column=0)
-	entRouteFileSelected = Entry(lblBackground, textvariable=routeText, background="white").grid(row=0, column=1)
-	lblImageSelected = Label(lblBackground).grid(row=1, column=0, columnspan=1)
-	btnOpenFile = Button(lblBackground, text="Abrir archivo", command=lambda:buttonOpenFilePressed(routeText, lblImageSelected)).grid(row=0, column=3)
-	btnPredict = Button(lblBackground, text="Realizar predicción", command=lambda:buttonPredictPressed(routeText)).grid(row=2, column=0)
+	routeText.set("...")
 
+	lblTop1 = Label(lblBackground, bg="#20A099")
+	lblTop1.pack(side=TOP, pady=100)
+
+	lblBottom1 = Label(lblBackground, bg="#20A099")
+	lblBottom1.pack(side=BOTTOM, pady=100)
+
+	lblTop2 = Label(lblTop1, bg="#20A099")
+	lblTop2.pack(side=TOP)
+
+	lblBottom2 = Label(lblTop1, bg="#20A099")
+	lblBottom2.pack(side=BOTTOM)
+
+	lblTitleFileSelected = Label(lblTop2, text="Ruta archivo:").pack(side=TOP)
+	lblRouteFileSelected = Label(lblTop2, textvariable=routeText, background="white").pack(side=LEFT, pady=20)
+	lblImageSelected = Label(lblBottom2)
+	btnOpenFile = Button(lblTop2, text="Abrir archivo", command=lambda:buttonOpenFilePressed(routeText, lblImageSelected, lblBottom2)).pack(side=LEFT, padx=10, pady=20)
+	btnPredict = Button(lblBottom1, text="Realizar predicción", font=20, command=lambda:buttonPredictPressed(routeText)).pack()
 	
 def showFrameImageSelected():
-	frameImageSelected.pack(fill=BOTH, expand=1)
+	frameImageSelected.pack(fill=BOTH, expand=True)
 
 def hideFrameImageSelected():
 	# Esconder pack_forget() o grid_forget()
 	frameImageSelected.pack_forget()
+
+
+
+def initializeFramePredictionResult(pred):
+	lblBackground = Label(framePredictionResult, image=backgroundImage)
+	lblBackground.pack(fill=BOTH, expand=True)
+
+
+	lblCenterWidgets = Label(lblBackground, image=backgroundImage)
+	lblCenterWidgets.place(relx=0.5, rely=0.5, anchor=CENTER)
+
+	lblTitleName = Label(lblCenterWidgets, text="Modelo", bg="#20A099", font=("Arial", 30, "bold")).grid(row=0, column=0)
+	lblTitleProb = Label(lblCenterWidgets, text="Probabilidad", bg="#20A099", font=("Arial", 30, "bold")).grid(row=0, column=1)
+	# lblTitleLink = Label(lblCenterWidgets, text="Link", bg="#20A099", font=30).grid(row=0, column=2)
+
+	lblAstraName = Label(lblCenterWidgets, text="Astra", bg="#20A099", font=("Arial", 20)).grid(row=1, column=0, pady=20)
+	lblAstraProb = Label(lblCenterWidgets, text=pred.item(0), bg="#20A099", font=("Arial", 20)).grid(row=1, column=1, padx=20, pady=20)
+	# lblAstraLink = Label(lblBackground, text="Google Hyperlink", fg="blue", cursor="hand2")
+	# lblAstraLink.grid(row=1, column=2)
+	# lblAstraLink.bind("<Button-1>", callback)
+
+	lblNobelActiveName = Label(lblCenterWidgets, text="Nobel Active", bg="#20A099", font=("Arial", 20)).grid(row=2, column=0, pady=20)
+	lblNobelActiveProb = Label(lblCenterWidgets, text=pred.item(1), bg="#20A099", font=("Arial", 20)).grid(row=2, column=1, padx=20, pady=20)
+	# lblNobelActiveLink = Label(lblBackground, text="Google Hyperlink", fg="blue", cursor="hand2")
+	# lblNobelActiveLink.grid(row=2, column=2)
+	# lblNobelActiveLink.bind("<Button-1>", callback)
+
+	lblNobelParallelName = Label(lblCenterWidgets, text="Nobel Parallel", bg="#20A099", font=("Arial", 20)).grid(row=3, column=0, pady=20)
+	lblNobelParallelProb = Label(lblCenterWidgets, text=pred.item(2), bg="#20A099", font=("Arial", 20)).grid(row=3, column=1, padx=20, pady=20)
+	# lblNobelParallelLink = Label(lblBackground, text="Google Hyperlink", fg="blue", cursor="hand2")
+	# lblNobelParallelLink.grid(row=3, column=2)
+	# lblNobelParallelLink.bind("<Button-1>", callback)
+
+	lblNobelReplaceSelectName = Label(lblCenterWidgets, text="Nobel Replace Select", bg="#20A099", font=("Arial", 20)).grid(row=4, column=0, pady=20)
+	lblNobelReplaceSelectProb = Label(lblCenterWidgets, text=pred.item(3), bg="#20A099", font=("Arial", 20)).grid(row=4, column=1, padx=20, pady=20)
+	# lblNobelReplaceSelectLink = Label(lblBackground, text="Google Hyperlink", fg="blue", cursor="hand2")
+	# lblNobelReplaceSelectLink.grid(row=4, column=2)
+	# lblNobelReplaceSelectLink.bind("<Button-1>", callback)
+
+	lblNobelReplaceTaperedName = Label(lblCenterWidgets, text="Nobel Replace Tapered", bg="#20A099", font=("Arial", 20)).grid(row=5, column=0, pady=20)
+	lblNobelReplaceTaperedProb = Label(lblCenterWidgets, text=pred.item(4), bg="#20A099", font=("Arial", 20)).grid(row=5, column=1, padx=20, pady=20)
+	# lblNobelReplaceTaperedLink = Label(lblBackground, text="Google Hyperlink", fg="blue", cursor="hand2")
+	# lblNobelReplaceTaperedLink.grid(row=5, column=2)
+	# lblNobelReplaceTaperedLink.bind("<Button-1>", callback)
+
+	lblNobelSpeedyReplaceTrichannelName = Label(lblCenterWidgets, text="Nobel Speedy Replace Trichannel", bg="#20A099", font=("Arial", 20)).grid(row=6, column=0, pady=20)
+	lblNobelSpeedyReplaceTrichannelProb = Label(lblCenterWidgets, text=pred.item(5), bg="#20A099", font=("Arial", 20)).grid(row=6, column=1, padx=20, pady=20)
+	# lblNobelSpeedyReplaceTrichannelLink = Label(lblBackground, text="Google Hyperlink", fg="blue", cursor="hand2")
+	# lblNobelSpeedyReplaceTrichannelLink.grid(row=6, column=2)
+	# lblNobelSpeedyReplaceTrichannelLink.bind("<Button-1>", callback)
+
+def showFramePredictionResult():
+	framePredictionResult.pack(fill=BOTH, expand=True)
+
+def hideFramePredictionResult():
+	# Esconder pack_forget() o grid_forget()
+	framePredictionResult.pack_forget()
+
+
 
 def main():
 	initializeRoot()
@@ -181,6 +265,8 @@ if __name__ == '__main__':
 	root = Tk()
 	frameMainMenu = Frame(root)
 	frameImageSelected = Frame(root)
+	framePredictionResult = Frame(root)
 	backgroundImage = PhotoImage(file = "presentation\\images\\background.png")
+	title = PhotoImage(file = "presentation\\images\\logo.png")
 	icon = PhotoImage(file = "presentation\\images\\icon_implant.png")
 	main()
