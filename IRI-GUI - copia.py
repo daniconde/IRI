@@ -139,14 +139,26 @@ def hideFrameMainMenu():
 	# Esconder pack_forget() o grid_forget()
 	frameMainMenu.pack_forget()
 
+def destroyFrameMainMenu():
+	frameMainMenu.destroy()
 
 
-def buttonOpenFilePressed(routeText, lblImageSelected, lblBottom2):
+
+# def buttonOpenFilePressed(routeText, lblImageSelected, lblBottom2):
+# 	file = openFile()
+# 	routeText.set(file)
+# 	photo = PhotoImage(file=file)
+# 	lblImageSelected = Label(lblBottom2, image=photo).pack()
+# 	lblImageSelected.image = photo
+# 	showFrameImageSelected()
+
+def buttonOpenFilePressed():
 	file = openFile()
-	routeText.set(file)
 	photo = PhotoImage(file=file)
-	lblImageSelected = Label(lblBottom2, image=photo).pack()
-	lblImageSelected.image = photo
+	destroyFrameImageSelected()
+	global frameImageSelected
+	frameImageSelected = Frame(root)
+	initializeFrameImageSelected(file, photo)
 	showFrameImageSelected()
 
 def buttonPredictPressed(routeText):
@@ -166,12 +178,41 @@ def buttonPredictPressed(routeText):
 	hideFrameImageSelected()
 	showFramePredictionResult()
 
-def initializeFrameImageSelected():
+# def initializeFrameImageSelected():
+# 	lblBackground = Label(frameImageSelected, image=backgroundImage)
+# 	lblBackground.pack(fill=BOTH, expand=True)
+	
+# 	routeText = StringVar()
+# 	routeText.set("...")
+
+# 	lblTitle = Label(lblBackground, image=titleSeleccionarRadiografia, bg="#20A099")
+# 	lblTitle.image = titleSeleccionarRadiografia
+# 	lblTitle.pack(side=TOP)
+
+# 	lblTop1 = Label(lblBackground, bg="#20A099")
+# 	lblTop1.pack(side=TOP, pady=50)
+
+# 	lblBottom1 = Label(lblBackground, bg="#20A099")
+# 	lblBottom1.pack(side=BOTTOM, pady=100)
+
+# 	lblTop2 = Label(lblTop1, bg="#20A099")
+# 	lblTop2.pack(side=TOP)
+
+# 	lblBottom2 = Label(lblTop1, bg="#20A099")
+# 	lblBottom2.pack(side=BOTTOM)
+
+# 	# lblTitleFileSelected = Label(lblTop2, text="Ruta archivo:").pack(side=TOP)
+# 	lblRouteFileSelected = Label(lblTop2, textvariable=routeText, background="white").pack(side=LEFT, pady=20)
+# 	lblImageSelected = Label(lblBottom2)
+# 	btnOpenFile = Button(lblTop2, text="Abrir archivo", command=lambda:buttonOpenFilePressed(routeText, lblImageSelected, lblBottom2)).pack(side=LEFT, padx=10, pady=20)
+# 	btnPredict = Button(lblBottom1, text="Realizar predicción", font=20, command=lambda:buttonPredictPressed(routeText)).pack()
+
+def initializeFrameImageSelected(text, photo):
 	lblBackground = Label(frameImageSelected, image=backgroundImage)
 	lblBackground.pack(fill=BOTH, expand=True)
 	
 	routeText = StringVar()
-	routeText.set("...")
+	routeText.set(text)
 
 	lblTitle = Label(lblBackground, image=titleSeleccionarRadiografia, bg="#20A099")
 	lblTitle.image = titleSeleccionarRadiografia
@@ -191,8 +232,11 @@ def initializeFrameImageSelected():
 
 	# lblTitleFileSelected = Label(lblTop2, text="Ruta archivo:").pack(side=TOP)
 	lblRouteFileSelected = Label(lblTop2, textvariable=routeText, background="white").pack(side=LEFT, pady=20)
-	lblImageSelected = Label(lblBottom2)
-	btnOpenFile = Button(lblTop2, text="Abrir archivo", command=lambda:buttonOpenFilePressed(routeText, lblImageSelected, lblBottom2)).pack(side=LEFT, padx=10, pady=20)
+	if photo != None:
+		lblImageSelected = Label(lblBottom2, image=photo)
+		lblImageSelected.image = photo
+		lblImageSelected.pack()
+	btnOpenFile = Button(lblTop2, text="Abrir archivo", command=lambda:buttonOpenFilePressed()).pack(side=LEFT, padx=10, pady=20)
 	btnPredict = Button(lblBottom1, text="Realizar predicción", font=20, command=lambda:buttonPredictPressed(routeText)).pack()
 	
 def showFrameImageSelected():
@@ -201,6 +245,9 @@ def showFrameImageSelected():
 def hideFrameImageSelected():
 	# Esconder pack_forget() o grid_forget()
 	frameImageSelected.pack_forget()
+
+def destroyFrameImageSelected():
+	frameImageSelected.destroy()
 
 
 
@@ -275,12 +322,16 @@ def hideFramePredictionResult():
 	# Esconder pack_forget() o grid_forget()
 	framePredictionResult.pack_forget()
 
+def destroyFramePredictionResult():
+	framePredictionResult.destroy()
+
 
 
 def main():
 	initializeRoot()
 	initializeFrameMainMenu()
-	initializeFrameImageSelected()
+	# initializeFrameImageSelected()
+	initializeFrameImageSelected("...", None)
 	showFrameMainMenu()
 	root.mainloop()
 
