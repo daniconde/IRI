@@ -129,8 +129,14 @@ def buttonMakePredictionPressed():
 def initializeFrameMainMenu():
 	lblBackground = Label(frameMainMenu, image=backgroundImage)
 	lblBackground.pack(fill=BOTH, expand=True)
-	lblTitle = Label(lblBackground, image=titleLogo, bg="#20A099").place(relx=0.5, rely=0.2, anchor=CENTER)
-	btnMakePrediction = Button(lblBackground, width=200, height=200, image=icon, command=buttonMakePredictionPressed).place(relx=.5, rely=.5, anchor=CENTER)
+	titleLogo = PhotoImage(file = "presentation\\images\\logo.png")
+	lblTitle = Label(lblBackground, image=titleLogo, bg="#20A099")
+	lblTitle.image = titleLogo
+	lblTitle.place(relx=0.5, rely=0.2, anchor=CENTER)
+	iconSearchImplant = PhotoImage(file = "presentation\\images\\icon_implant.png")
+	btnMakePrediction = Button(lblBackground, width=200, height=200, image=iconSearchImplant, command=buttonMakePredictionPressed)
+	btnMakePrediction.image = iconSearchImplant
+	btnMakePrediction.place(relx=.5, rely=.5, anchor=CENTER)
 	
 def showFrameMainMenu():
 	frameMainMenu.pack(fill=BOTH, expand=True)
@@ -214,6 +220,7 @@ def initializeFrameImageSelected(text, photo):
 	routeText = StringVar()
 	routeText.set(text)
 
+	titleSeleccionarRadiografia = PhotoImage(file = "presentation\\images\\seleccionar_radiografia.png")
 	lblTitle = Label(lblBackground, image=titleSeleccionarRadiografia, bg="#20A099")
 	lblTitle.image = titleSeleccionarRadiografia
 	lblTitle.pack(side=TOP)
@@ -269,15 +276,31 @@ def initializeFramePredictionResult(pred):
 	lblBackground = Label(framePredictionResult, image=backgroundImage)
 	lblBackground.pack(fill=BOTH, expand=True)
 
+	# titleResultadosPrediccion = PhotoImage(file = "presentation\\images\\resultados_prediccion.png")
+	# lblTitle = Label(lblBackground, image=titleResultadosPrediccion, bg="#20A099")
+	# lblTitle.image = titleResultadosPrediccion
+	# lblTitle.place(relx=0.5, rely=0.1, anchor=CENTER)
+
 	lblTitle = Label(lblBackground, image=titleResultadosPrediccion, bg="#20A099")
 	lblTitle.place(relx=0.5, rely=0.1, anchor=CENTER)
 
 	lblCenterWidgets = Label(lblBackground, image=backgroundImage)
 	lblCenterWidgets.place(relx=0.5, rely=0.6, anchor=CENTER)
 
-	lblTitleName = Label(lblCenterWidgets, image=titleModelo, bg="#20A099").grid(row=0, column=0)
-	lblTitleProb = Label(lblCenterWidgets, image=titleProbabilidad, bg="#20A099").grid(row=0, column=1)
-	lblTitleLink = Label(lblCenterWidgets, image=titleLink, bg="#20A099").grid(row=0, column=2)
+	titleModelo = PhotoImage(file = "presentation\\images\\modelo.png")
+	lblTitleName = Label(lblCenterWidgets, image=titleModelo, bg="#20A099")
+	lblTitle.image = titleModelo
+	lblTitleName.grid(row=0, column=0)
+
+	titleProbabilidad = PhotoImage(file = "presentation\\images\\probabilidad.png")
+	lblTitleProb = Label(lblCenterWidgets, image=titleProbabilidad, bg="#20A099")
+	lblTitleProb.image = titleProbabilidad
+	lblTitleProb.grid(row=0, column=1)
+
+	titleLink = PhotoImage(file = "presentation\\images\\link.png")
+	lblTitleLink = Label(lblCenterWidgets, image=titleLink, bg="#20A099")
+	lblTitleLink.image = titleLink
+	lblTitleLink.grid(row=0, column=2)
 
 	lblAstraName = Label(lblCenterWidgets, text="Astra", bg="#20A099", font=("Arial", 20)).grid(row=1, column=0, pady=20)
 	lblAstraProb = Label(lblCenterWidgets, text=pred.item(0), bg="#20A099", font=("Arial", 20)).grid(row=1, column=1, padx=20, pady=20)
@@ -341,11 +364,11 @@ if __name__ == '__main__':
 	frameImageSelected = Frame(root)
 	framePredictionResult = Frame(root)
 	backgroundImage = PhotoImage(file = "presentation\\images\\background.png")
-	titleLogo = PhotoImage(file = "presentation\\images\\logo.png")
-	titleSeleccionarRadiografia = PhotoImage(file = "presentation\\images\\seleccionar_radiografia.png")
+	# iconSearchImplant = PhotoImage(file = "presentation\\images\\icon_implant.png")
+	# titleLogo = PhotoImage(file = "presentation\\images\\logo.png")
+	# titleSeleccionarRadiografia = PhotoImage(file = "presentation\\images\\seleccionar_radiografia.png")
 	titleResultadosPrediccion = PhotoImage(file = "presentation\\images\\resultados_prediccion.png")
-	titleModelo = PhotoImage(file = "presentation\\images\\modelo.png")
-	titleProbabilidad = PhotoImage(file = "presentation\\images\\probabilidad.png")
-	titleLink = PhotoImage(file = "presentation\\images\\link.png")
-	icon = PhotoImage(file = "presentation\\images\\icon_implant.png")
+	# titleModelo = PhotoImage(file = "presentation\\images\\modelo.png")
+	# titleProbabilidad = PhotoImage(file = "presentation\\images\\probabilidad.png")
+	# titleLink = PhotoImage(file = "presentation\\images\\link.png")
 	main()
