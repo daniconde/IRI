@@ -38,13 +38,29 @@ def cropImage():
 	cv2.destroyAllWindows()
 	return imCrop
 
+def auto_canny(image, sigma=0.33):
+	# compute the median of the single channel pixel intensities
+	v = np.median(image)
+ 
+	# apply automatic Canny edge detection using the computed median
+	lower = int(max(0, (1.0 - sigma) * v))
+	upper = int(min(255, (1.0 + sigma) * v))
+	edged = cv2.Canny(image, lower, upper)
+ 
+	# return the edged image
+	return edged
+
 def rotateImage():
 	# Read image
 	image = cv2.imread('radiography.png')
 	
 	grayImage = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-	edged = cv2.Canny(grayImage, 20, 100)
+	grayImage = cv2.GaussianBlur(grayImage, (3, 3), 0)
+
+	# edged = cv2.Canny(grayImage, 20, 100)
+
+	edged = auto_canny(grayImage)
 
 	# find contours in the edge map
 	cnts = cv2.findContours(edged.copy(), cv2.RETR_EXTERNAL,
@@ -85,9 +101,15 @@ def rotateImage():
 		cv2.imshow("Rotated", rotated)
 		k = cv2.waitKey(0)
 		if (k == ord('d')):
-			angle += 15
+			if ((angle + 15) == 360):
+				angle = 0
+			else:
+				angle += 15
 		if (k == ord('a')):
-			angle -= 15
+			if (angle == 0):
+				angle = 345
+			else:
+				angle -= 15
 		if k == 27:
 			cv2.destroyAllWindows()
 			f = False
@@ -140,7 +162,7 @@ def initializeFrameMainMenu():
 	lblBackground = Label(frameMainMenu, image=backgroundImage)
 	lblBackground.pack(fill=BOTH, expand=True)
 	titleLogo = PhotoImage(file = "presentation\\images\\logo.png")
-	lblTitle = Label(lblBackground, image=titleLogo, bg="#20A099")
+	lblTitle = Label(lblBackground, image=titleLogo, bg="#20A099", width=1240, height=110)
 	lblTitle.image = titleLogo
 	lblTitle.place(relx=0.5, rely=0.2, anchor=CENTER)
 	iconSearchImplant = PhotoImage(file = "presentation\\images\\icon_implant.png")
@@ -219,7 +241,6 @@ def buttonScalePressed(file):
 	initializeFrameImageSelected(file, photo)
 	showFrameImageSelected()
 
-
 def buttonPredictPressed():
 	image = convertOneImage('radiography.png')
 	# image = cv2.imread(file)
@@ -246,9 +267,9 @@ def initializeFrameImageSelected(text, photo):
 	routeText.set(text)
 
 	titleSeleccionarRadiografia = PhotoImage(file = "presentation\\images\\seleccionar_radiografia.png")
-	lblTitle = Label(lblBackground, image=titleSeleccionarRadiografia, bg="#20A099")
+	lblTitle = Label(lblBackground, image=titleSeleccionarRadiografia, bg="#20A099", width=1110, height=120)
 	lblTitle.image = titleSeleccionarRadiografia
-	lblTitle.pack(side=TOP)
+	lblTitle.pack(side=TOP, pady=10)
 
 	iconBack = PhotoImage(file = "presentation\\images\\left_arrow.png")
 	btnBack = Button(lblBackground, image=iconBack, bg="#20A099", border="0", width=90, height=90, command=lambda:buttonBackFrameImageSelectedPressed())
@@ -335,8 +356,8 @@ def initializeFramePredictionResult(pred):
 	# lblTitle.image = titleResultadosPrediccion
 	# lblTitle.place(relx=0.5, rely=0.1, anchor=CENTER)
 
-	lblTitle = Label(lblBackground, image=titleResultadosPrediccion, bg="#20A099")
-	lblTitle.pack(side=TOP)
+	lblTitle = Label(lblBackground, image=titleResultadosPrediccion, bg="#20A099", width=1010, height=120)
+	lblTitle.pack(side=TOP, pady=10)
 
 	iconBack = PhotoImage(file = "presentation\\images\\left_arrow.png")
 	btnBack = Button(lblBackground, image=iconBack, bg="#20A099", border="0", width=90, height=90, command=lambda:buttonBackFramePredictionResult())
@@ -423,7 +444,7 @@ if __name__ == '__main__':
 	frameMainMenu = Frame(root)
 	frameImageSelected = Frame(root)
 	framePredictionResult = Frame(root)
-	backgroundImage = PhotoImage(file = "presentation\\images\\background.png")
+	backgroundImage = PhotoImage(file = "presentation\\images\\background_p.png")
 	# iconSearchImplant = PhotoImage(file = "presentation\\images\\icon_implant.png")
 	# titleLogo = PhotoImage(file = "presentation\\images\\logo.png")
 	# titleSeleccionarRadiografia = PhotoImage(file = "presentation\\images\\seleccionar_radiografia.png")
