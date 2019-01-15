@@ -149,6 +149,8 @@ def initializeRoot():
 	# Lo del config se puede poner directament en el constructor
 	root.config(bg="blue")
 
+	root.title("Implant Radiography Identifier")
+
 
 
 def buttonMakePredictionPressed():
@@ -240,6 +242,30 @@ def buttonScalePressed(file):
 	initializeFrameImageSelected(file, photo)
 	showFrameImageSelected()
 
+def modelWithHighestProbability(pred):
+	model = 0
+	prob = 0
+	for i in range(len(pred)):
+		if i == 0:
+			prob = pred.item(i)
+			model = i
+		elif pred.item(i) > prob:
+			prob = pred.item(i)
+			model = i
+
+	if model == 0:
+		return "Astra"
+	elif model == 1:
+		return "NobelActive"
+	elif model == 2:
+		return "NobelParallel"
+	elif model == 3:
+		return "NobelReplaceSelect"
+	elif model == 4:
+		return "NobelReplaceTapered"
+	else:
+		return "NobelSpeedyReplaceTrichannel"
+
 def buttonPredictPressed():
 	image = convertOneImage('radiography.png')
 	# image = cv2.imread(file)
@@ -248,6 +274,8 @@ def buttonPredictPressed():
 	# cv2.waitKey(0)
 	# grayImage = grayImage.flatten()
 	pred = makePrediction(image)
+
+	model = modelWithHighestProbability(pred)
 	
 	print(pred)
 	print(type(pred))
@@ -255,7 +283,7 @@ def buttonPredictPressed():
 	destroyFrameImageSelected()
 	global framePredictionResult
 	framePredictionResult = Frame(root)
-	initializeFramePredictionResult(pred)
+	initializeFramePredictionResult(pred, model)
 	showFramePredictionResult()
 
 def initializeFrameImageSelected(text, photo):
@@ -363,7 +391,7 @@ def callback(event, model):
 	elif model == "NobelSpeedyReplaceTrichannel": 
 		webbrowser.open_new(r"https://store.nobelbiocare.com/es/es/implantes/nobelspeedy")
 
-def initializeFramePredictionResult(pred):
+def initializeFramePredictionResult(pred, model):
 	background = PhotoImage(file = "presentation\\images\\background_deg_result_prediccion2.png")
 	lblBackground = Label(framePredictionResult, image=background)
 	lblBackground.image = background
@@ -378,41 +406,83 @@ def initializeFramePredictionResult(pred):
 	lblCenterWidgets = Label(lblBackground, bg="#31A190")
 	lblCenterWidgets.pack(side=TOP)
 
-	lblAstraName = Label(lblCenterWidgets, text="Astra", bg="#31A190", font=("Arial", 20)).grid(row=0, column=0)
-	lblAstraProb = Label(lblCenterWidgets, text=locale.format("%f", pred.item(0)*100, 1), bg="#31A190", font=("Arial", 20)).grid(row=0, column=1, padx=120)
-	lblAstraLink = Label(lblCenterWidgets, text="Astra - OsseoSpeed EV", bg="#31A190", font=("Arial", 20), cursor="hand2")
-	lblAstraLink.grid(row=0, column=2, padx=20)
-	lblAstraLink.bind("<Button-1>", lambda event:callback(event, "Astra"))
+	if model == "Astra":
+		lblAstraName = Label(lblCenterWidgets, text="Astra", bg="#31A190", fg="red", font=("Arial", 20)).grid(row=0, column=0)
+		lblAstraProb = Label(lblCenterWidgets, text=locale.format("%f", pred.item(0)*100, 1), bg="#31A190", fg="red", font=("Arial", 20)).grid(row=0, column=1, padx=120)
+		lblAstraLink = Label(lblCenterWidgets, text="Astra - OsseoSpeed EV", bg="#31A190", fg="red", font=("Arial", 20), cursor="hand2")
+		lblAstraLink.grid(row=0, column=2, padx=20)
+		lblAstraLink.bind("<Button-1>", lambda event:callback(event, "Astra"))
+	else:
+		lblAstraName = Label(lblCenterWidgets, text="Astra", bg="#31A190", font=("Arial", 20)).grid(row=0, column=0)
+		lblAstraProb = Label(lblCenterWidgets, text=locale.format("%f", pred.item(0)*100, 1), bg="#31A190", font=("Arial", 20)).grid(row=0, column=1, padx=120)
+		lblAstraLink = Label(lblCenterWidgets, text="Astra - OsseoSpeed EV", bg="#31A190", font=("Arial", 20), cursor="hand2")
+		lblAstraLink.grid(row=0, column=2, padx=20)
+		lblAstraLink.bind("<Button-1>", lambda event:callback(event, "Astra"))
 
-	lblNobelActiveName = Label(lblCenterWidgets, text="Nobel Active", bg="#31A190", font=("Arial", 20)).grid(row=1, column=0, pady=10)
-	lblNobelActiveProb = Label(lblCenterWidgets, text=locale.format("%f", pred.item(1)*100, 1), bg="#31A190", font=("Arial", 20)).grid(row=1, column=1, padx=120, pady=10)
-	lblNobelActiveLink = Label(lblCenterWidgets, text="Nobel - Active", bg="#31A190", font=("Arial", 20), cursor="hand2")
-	lblNobelActiveLink.grid(row=1, column=2, padx=20, pady=10)
-	lblNobelActiveLink.bind("<Button-1>", lambda event:callback(event, "NobelActive"))
+	if model == "NobelActive":
+		lblNobelActiveName = Label(lblCenterWidgets, text="Nobel Active", bg="#31A190", fg="red", font=("Arial", 20)).grid(row=1, column=0, pady=10)
+		lblNobelActiveProb = Label(lblCenterWidgets, text=locale.format("%f", pred.item(1)*100, 1), bg="#31A190", fg="red", font=("Arial", 20)).grid(row=1, column=1, padx=120, pady=10)
+		lblNobelActiveLink = Label(lblCenterWidgets, text="Nobel - Active", bg="#31A190", fg="red", font=("Arial", 20), cursor="hand2")
+		lblNobelActiveLink.grid(row=1, column=2, padx=20, pady=10)
+		lblNobelActiveLink.bind("<Button-1>", lambda event:callback(event, "NobelActive"))
+	else:
+		lblNobelActiveName = Label(lblCenterWidgets, text="Nobel Active", bg="#31A190", font=("Arial", 20)).grid(row=1, column=0, pady=10)
+		lblNobelActiveProb = Label(lblCenterWidgets, text=locale.format("%f", pred.item(1)*100, 1), bg="#31A190", font=("Arial", 20)).grid(row=1, column=1, padx=120, pady=10)
+		lblNobelActiveLink = Label(lblCenterWidgets, text="Nobel - Active", bg="#31A190", font=("Arial", 20), cursor="hand2")
+		lblNobelActiveLink.grid(row=1, column=2, padx=20, pady=10)
+		lblNobelActiveLink.bind("<Button-1>", lambda event:callback(event, "NobelActive"))
 
-	lblNobelParallelName = Label(lblCenterWidgets, text="Nobel Parallel", bg="#31A190", font=("Arial", 20)).grid(row=2, column=0, pady=10)
-	lblNobelParallelProb = Label(lblCenterWidgets, text=locale.format("%f", pred.item(2)*100, 1), bg="#31A190", font=("Arial", 20)).grid(row=2, column=1, padx=120, pady=10)
-	lblNobelParallelLink = Label(lblCenterWidgets, text="Nobel - Parallel CC", bg="#31A190", font=("Arial", 20), cursor="hand2")
-	lblNobelParallelLink.grid(row=2, column=2, padx=20, pady=10)
-	lblNobelParallelLink.bind("<Button-1>", lambda event:callback(event, "NobelParallel"))
+	if model == "NobelParallel": 
+		lblNobelParallelName = Label(lblCenterWidgets, text="Nobel Parallel", bg="#31A190", fg="red", font=("Arial", 20)).grid(row=2, column=0, pady=10)
+		lblNobelParallelProb = Label(lblCenterWidgets, text=locale.format("%f", pred.item(2)*100, 1), bg="#31A190", fg="red", font=("Arial", 20)).grid(row=2, column=1, padx=120, pady=10)
+		lblNobelParallelLink = Label(lblCenterWidgets, text="Nobel - Parallel CC", bg="#31A190", fg="red", font=("Arial", 20), cursor="hand2")
+		lblNobelParallelLink.grid(row=2, column=2, padx=20, pady=10)
+		lblNobelParallelLink.bind("<Button-1>", lambda event:callback(event, "NobelParallel"))
+	else:
+		lblNobelParallelName = Label(lblCenterWidgets, text="Nobel Parallel", bg="#31A190", font=("Arial", 20)).grid(row=2, column=0, pady=10)
+		lblNobelParallelProb = Label(lblCenterWidgets, text=locale.format("%f", pred.item(2)*100, 1), bg="#31A190", font=("Arial", 20)).grid(row=2, column=1, padx=120, pady=10)
+		lblNobelParallelLink = Label(lblCenterWidgets, text="Nobel - Parallel CC", bg="#31A190", font=("Arial", 20), cursor="hand2")
+		lblNobelParallelLink.grid(row=2, column=2, padx=20, pady=10)
+		lblNobelParallelLink.bind("<Button-1>", lambda event:callback(event, "NobelParallel"))
 
-	lblNobelReplaceSelectName = Label(lblCenterWidgets, text="Nobel Replace Select", bg="#31A190", font=("Arial", 20)).grid(row=3, column=0, pady=10)
-	lblNobelReplaceSelectProb = Label(lblCenterWidgets, text=locale.format("%f", pred.item(3)*100, 1), bg="#31A190", font=("Arial", 20)).grid(row=3, column=1, padx=120, pady=10)
-	lblNobelReplaceSelectLink = Label(lblCenterWidgets, text="Nobel - Replace Select TC", bg="#31A190", font=("Arial", 20), cursor="hand2")
-	lblNobelReplaceSelectLink.grid(row=3, column=2, padx=20, pady=10)
-	lblNobelReplaceSelectLink.bind("<Button-1>", lambda event:callback(event, "NobelReplaceSelect"))
+	if model == "NobelReplaceSelect": 
+		lblNobelReplaceSelectName = Label(lblCenterWidgets, text="Nobel Replace Select", bg="#31A190", fg="red", font=("Arial", 20)).grid(row=3, column=0, pady=10)
+		lblNobelReplaceSelectProb = Label(lblCenterWidgets, text=locale.format("%f", pred.item(3)*100, 1), bg="#31A190", fg="red", font=("Arial", 20)).grid(row=3, column=1, padx=120, pady=10)
+		lblNobelReplaceSelectLink = Label(lblCenterWidgets, text="Nobel - Replace Select TC", bg="#31A190", fg="red", font=("Arial", 20), cursor="hand2")
+		lblNobelReplaceSelectLink.grid(row=3, column=2, padx=20, pady=10)
+		lblNobelReplaceSelectLink.bind("<Button-1>", lambda event:callback(event, "NobelReplaceSelect"))
+	else:
+		lblNobelReplaceSelectName = Label(lblCenterWidgets, text="Nobel Replace Select", bg="#31A190", font=("Arial", 20)).grid(row=3, column=0, pady=10)
+		lblNobelReplaceSelectProb = Label(lblCenterWidgets, text=locale.format("%f", pred.item(3)*100, 1), bg="#31A190", font=("Arial", 20)).grid(row=3, column=1, padx=120, pady=10)
+		lblNobelReplaceSelectLink = Label(lblCenterWidgets, text="Nobel - Replace Select TC", bg="#31A190", font=("Arial", 20), cursor="hand2")
+		lblNobelReplaceSelectLink.grid(row=3, column=2, padx=20, pady=10)
+		lblNobelReplaceSelectLink.bind("<Button-1>", lambda event:callback(event, "NobelReplaceSelect"))
 
-	lblNobelReplaceTaperedName = Label(lblCenterWidgets, text="Nobel Replace Tapered", bg="#31A190", font=("Arial", 20)).grid(row=4, column=0, pady=10)
-	lblNobelReplaceTaperedProb = Label(lblCenterWidgets, text=locale.format("%f", pred.item(4)*100, 1), bg="#31A190", font=("Arial", 20)).grid(row=4, column=1, padx=120, pady=10)
-	lblNobelReplaceTaperedLink = Label(lblCenterWidgets, text="Nobel - Replace Tapered", bg="#31A190", font=("Arial", 20), cursor="hand2")
-	lblNobelReplaceTaperedLink.grid(row=4, column=2, padx=20, pady=10)
-	lblNobelReplaceTaperedLink.bind("<Button-1>", lambda event:callback(event, "NobelReplaceTapered"))
+	if model == "NobelReplaceTapered":
+		lblNobelReplaceTaperedName = Label(lblCenterWidgets, text="Nobel Replace Tapered", bg="#31A190", fg="red", font=("Arial", 20)).grid(row=4, column=0, pady=10)
+		lblNobelReplaceTaperedProb = Label(lblCenterWidgets, text=locale.format("%f", pred.item(4)*100, 1), bg="#31A190", fg="red", font=("Arial", 20)).grid(row=4, column=1, padx=120, pady=10)
+		lblNobelReplaceTaperedLink = Label(lblCenterWidgets, text="Nobel - Replace Tapered", bg="#31A190", fg="red", font=("Arial", 20), cursor="hand2")
+		lblNobelReplaceTaperedLink.grid(row=4, column=2, padx=20, pady=10)
+		lblNobelReplaceTaperedLink.bind("<Button-1>", lambda event:callback(event, "NobelReplaceTapered"))
+	else:
+		blNobelReplaceTaperedName = Label(lblCenterWidgets, text="Nobel Replace Tapered", bg="#31A190", font=("Arial", 20)).grid(row=4, column=0, pady=10)
+		lblNobelReplaceTaperedProb = Label(lblCenterWidgets, text=locale.format("%f", pred.item(4)*100, 1), bg="#31A190", font=("Arial", 20)).grid(row=4, column=1, padx=120, pady=10)
+		lblNobelReplaceTaperedLink = Label(lblCenterWidgets, text="Nobel - Replace Tapered", bg="#31A190", font=("Arial", 20), cursor="hand2")
+		lblNobelReplaceTaperedLink.grid(row=4, column=2, padx=20, pady=10)
+		lblNobelReplaceTaperedLink.bind("<Button-1>", lambda event:callback(event, "NobelReplaceTapered"))
 
-	lblNobelSpeedyReplaceTrichannelName = Label(lblCenterWidgets, text="Nobel Speedy Replace Trichannel", bg="#31A190", font=("Arial", 20)).grid(row=5, column=0, pady=10)
-	lblNobelSpeedyReplaceTrichannelProb = Label(lblCenterWidgets, text=locale.format("%f", pred.item(5)*100, 1), bg="#31A190", font=("Arial", 20)).grid(row=5, column=1, padx=120, pady=10)
-	lblNobelSpeedyReplaceTrichannelLink = Label(lblCenterWidgets, text="Nobel - Speedy Replace TriChannel", bg="#31A190", font=("Arial", 20), cursor="hand2")
-	lblNobelSpeedyReplaceTrichannelLink.grid(row=5, column=2, padx=20, pady=10)
-	lblNobelSpeedyReplaceTrichannelLink.bind("<Button-1>", lambda event:callback(event, "NobelSpeedyReplaceTrichannel"))
+	if model == "NobelSpeedyReplaceTrichannel":
+		lblNobelSpeedyReplaceTrichannelName = Label(lblCenterWidgets, text="Nobel Speedy Replace Trichannel", bg="#31A190", fg="red", font=("Arial", 20)).grid(row=5, column=0, pady=10)
+		lblNobelSpeedyReplaceTrichannelProb = Label(lblCenterWidgets, text=locale.format("%f", pred.item(5)*100, 1), bg="#31A190", fg="red", font=("Arial", 20)).grid(row=5, column=1, padx=120, pady=10)
+		lblNobelSpeedyReplaceTrichannelLink = Label(lblCenterWidgets, text="Nobel - Speedy Replace TriChannel", bg="#31A190", fg="red", font=("Arial", 20), cursor="hand2")
+		lblNobelSpeedyReplaceTrichannelLink.grid(row=5, column=2, padx=20, pady=10)
+		lblNobelSpeedyReplaceTrichannelLink.bind("<Button-1>", lambda event:callback(event, "NobelSpeedyReplaceTrichannel"))
+	else:
+		lblNobelSpeedyReplaceTrichannelName = Label(lblCenterWidgets, text="Nobel Speedy Replace Trichannel", bg="#31A190", font=("Arial", 20)).grid(row=5, column=0, pady=10)
+		lblNobelSpeedyReplaceTrichannelProb = Label(lblCenterWidgets, text=locale.format("%f", pred.item(5)*100, 1), bg="#31A190", font=("Arial", 20)).grid(row=5, column=1, padx=120, pady=10)
+		lblNobelSpeedyReplaceTrichannelLink = Label(lblCenterWidgets, text="Nobel - Speedy Replace TriChannel", bg="#31A190", font=("Arial", 20), cursor="hand2")
+		lblNobelSpeedyReplaceTrichannelLink.grid(row=5, column=2, padx=20, pady=10)
+		lblNobelSpeedyReplaceTrichannelLink.bind("<Button-1>", lambda event:callback(event, "NobelSpeedyReplaceTrichannel"))
 
 	imageBtnMainMenu = PhotoImage(file = "presentation\\images\\inicio.png")
 	# btnMainMenu = Button(lblBackground, image=imageBtnMainMenu, border="2", width=104, height=58, command=lambda:buttonMainMenuPressed())
@@ -443,11 +513,11 @@ if __name__ == '__main__':
 	frameMainMenu = Frame(root)
 	frameImageSelected = Frame(root)
 	framePredictionResult = Frame(root)
-	backgroundImage = PhotoImage(file = "presentation\\images\\background_p.png")
+	# backgroundImage = PhotoImage(file = "presentation\\images\\background_p.png")
 	# iconSearchImplant = PhotoImage(file = "presentation\\images\\icon_implant.png")
 	# titleLogo = PhotoImage(file = "presentation\\images\\logo.png")
 	# titleSeleccionarRadiografia = PhotoImage(file = "presentation\\images\\seleccionar_radiografia.png")
-	titleResultadosPrediccion = PhotoImage(file = "presentation\\images\\resultados_prediccion.png")
+	# titleResultadosPrediccion = PhotoImage(file = "presentation\\images\\resultados_prediccion.png")
 	# titleModelo = PhotoImage(file = "presentation\\images\\modelo.png")
 	# titleProbabilidad = PhotoImage(file = "presentation\\images\\probabilidad.png")
 	# titleLink = PhotoImage(file = "presentation\\images\\link.png")
