@@ -313,7 +313,7 @@ def trainModel():
 
   model.fit(images_train, labels_train, batch_size=5, epochs=30, verbose=1, validation_split=0.1, callbacks=[cb])
   # model.fit(images_train, labels_train, batch_size=5, epochs=15, verbose=1, validation_split=0.1)
-  model.save('classifier/model.keras')
+  model.save('classifier/model1.keras')
 
   # Evaluación del modelo
   result = model.evaluate(images_test, labels_test, verbose=0)
@@ -331,7 +331,7 @@ def trainModel():
 def testModel():
   imgs = images_test
   labels_true = labels_test
-  model = load_model('classifier/model.keras')
+  model = load_model('classifier/model1.keras')
 
   cls_true = np.argmax(labels_true,axis=1)
   print(cls_true)
@@ -360,10 +360,10 @@ def retrainModel():
   convert2NPArray()
 
   cb = EarlyStopping(monitor='acc', min_delta=0.005, patience=0)
-  model = load_model('classifier/model.keras')
+  model = load_model('classifier/model1.keras')
   # model.fit(images_train, labels_train, batch_size=5, epochs=15, verbose=1, validation_split=0.1, callbacks=[cb])
   model.fit(images_train, labels_train, batch_size=5, epochs=15, verbose=1, validation_split=0.1)
-  model.save('classifier/model.keras')
+  model.save('classifier/model1.keras')
   # Evaluación del modelo
   result = model.evaluate(images_test, labels_test, verbose=0)
   print ('Testing set accuracy:', result[1])
@@ -375,7 +375,7 @@ def makePrediction(image):
   imgs = []
   imgs.append(image)
   imgs = np.array(imgs) 
-  model = load_model('classifier/model.keras')
+  model = load_model('classifier/model1.keras')
   pred = model.predict(x=imgs)
   print(pred)
   #Pasar clases predecidas a enteros

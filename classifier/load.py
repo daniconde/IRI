@@ -307,12 +307,12 @@ labels_test = np.array(labels_test)
 cb = EarlyStopping(monitor='acc', min_delta=0.005, patience=0)
 
 
-model = load_model('model.keras')
+model = load_model('model1.keras')
 
 
 # model.fit(images_train, labels_train, batch_size=5, epochs=15, verbose=1, validation_split=0.1, callbacks=[cb])
 model.fit(images_train, labels_train, batch_size=5, epochs=15, verbose=1, validation_split=0.1)
-model.save('model.keras')
+model.save('model1.keras')
 
 # Evaluación del modelo
 result = model.evaluate(images_test, labels_test, verbose=0)

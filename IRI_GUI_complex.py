@@ -161,8 +161,9 @@ def buttonMakePredictionPressed():
 def initializeFrameMainMenu():
 	lblBackground = Label(frameMainMenu, image=backgroundImage)
 	lblBackground.pack(fill=BOTH, expand=True)
-	titleLogo = PhotoImage(file = "presentation\\images\\logo.png")
-	lblTitle = Label(lblBackground, image=titleLogo, bg="#20A099", width=1240, height=110)
+	titleLogo = PhotoImage(file = "presentation\\images\\logo_f.png")
+	# lblTitle = Label(lblBackground, image=titleLogo, bg="#20A099", width=1240, height=110)
+	lblTitle = Label(lblBackground, image=titleLogo, border=0, width=1260, height=110)
 	lblTitle.image = titleLogo
 	lblTitle.place(relx=0.5, rely=0.2, anchor=CENTER)
 	iconSearchImplant = PhotoImage(file = "presentation\\images\\icon_implant.png")
@@ -277,7 +278,7 @@ def initializeFrameImageSelected(text, photo):
 	btnBack.pack(side=TOP, anchor=W, padx=10)
 
 	lblTop1 = Label(lblBackground, bg="#20A099")
-	lblTop1.pack(side=TOP, pady=30)
+	lblTop1.pack(side=TOP)
 
 	# Lo utilizaba btnPredict
 	# lblBottom1 = Label(lblBackground, bg="#20A099")
@@ -293,12 +294,12 @@ def initializeFrameImageSelected(text, photo):
 	lblBottom2.pack(side=BOTTOM)
 
 	# lblTitleFileSelected = Label(lblTop2, text="Ruta archivo:").pack(side=TOP)
-	lblRouteFileSelected = Label(lblTop2, textvariable=routeText, background="white").pack(side=LEFT, pady=20)
+	lblRouteFileSelected = Label(lblTop2, textvariable=routeText, background="white").pack(side=LEFT)
 	if photo != None:
 		lblImageSelected = Label(lblBottom2, image=photo)
 		lblImageSelected.image = photo
 		lblImageSelected.pack()
-	btnOpenFile = Button(lblTop2, text="Abrir archivo", command=lambda:buttonOpenFilePressed()).pack(side=LEFT, padx=10, pady=20)
+	btnOpenFile = Button(lblTop2, text="Abrir archivo", command=lambda:buttonOpenFilePressed()).pack(side=LEFT, padx=10)
 	if photo == None:
 		btnPredict = Button(lblBackground, text="Realizar predicción", font=20, state=DISABLED, command=lambda:buttonPredictPressed(routeText)).pack(side=BOTTOM, pady=100)
 	else:
