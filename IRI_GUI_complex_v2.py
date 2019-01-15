@@ -279,7 +279,7 @@ def initializeFrameImageSelected(text, photo):
 	lblTop2.pack(side=TOP)
 
 	lblRight2 = Label(lblTop1, bg="#31A190")
-	lblRight2.pack(side=RIGHT)
+	lblRight2.pack(side=RIGHT, pady=30)
 
 	lblBottom2 = Label(lblTop1, bg="#31A190")
 	lblBottom2.pack(side=BOTTOM)
@@ -292,34 +292,36 @@ def initializeFrameImageSelected(text, photo):
 	btnOpenFile.pack(side=LEFT, padx=10)
 
 	if photo != None:
-		lblImageSelected = Label(lblBottom2, image=photo)
+		lblImageSelected = Label(lblBottom2, image=photo, bg="#31A190", width=400, height=300)
 		lblImageSelected.image = photo
 		lblImageSelected.pack()
 	
 	imageBtnPredict = PhotoImage(file = "presentation\\images\\realizar_prediccion.png")
 	if photo == None:
-		btnPredict = Button(lblBackground, image=imageBtnPredict, border="0", width=301, height=65, state=DISABLED, command=lambda:buttonPredictPressed(routeText))
+		# btnPredict = Button(lblBackground, image=imageBtnPredict, border="2", width=301, height=65, state=DISABLED, command=lambda:buttonPredictPressed(routeText))
+		btnPredict = Button(lblBackground, image=imageBtnPredict, border="0", width=299, height=63, state=DISABLED, command=lambda:buttonPredictPressed(routeText))
 		btnPredict.image = imageBtnPredict
-		btnPredict.pack(side=BOTTOM, pady=100)
+		btnPredict.pack(side=BOTTOM, pady=30)
 	else:
-		btnPredict = Button(lblBackground, image=imageBtnPredict, border="0", width=301, height=65, command=lambda:buttonPredictPressed())
+		# btnPredict = Button(lblBackground, image=imageBtnPredict, border="2", width=301, height=65, command=lambda:buttonPredictPressed())
+		btnPredict = Button(lblBackground, image=imageBtnPredict, border="0", width=299, height=63, command=lambda:buttonPredictPressed())
 		btnPredict.image = imageBtnPredict
-		btnPredict.pack(side=BOTTOM, pady=100)
+		btnPredict.pack(side=BOTTOM, pady=30)
 		
 		imageBtnRotate = PhotoImage(file = "presentation\\images\\rotar_imagen.png")
-		btnRotate = Button(lblRight2, image=imageBtnRotate, border="0", width=130, height=20, command=lambda:buttonRotatePressed(text))
+		btnRotate = Button(lblRight2, image=imageBtnRotate, border="0", width=123, height=20, command=lambda:buttonRotatePressed(text))
 		btnRotate.image = imageBtnRotate
 		btnRotate.pack(side=TOP)
 
 		imageBtnCrop = PhotoImage(file = "presentation\\images\\recortar_imagen.png")
-		btnCrop = Button(lblRight2, image=imageBtnCrop, border="0", width=130, height=20, command=lambda:buttonCropPressed(text))
+		btnCrop = Button(lblRight2, image=imageBtnCrop, border="0", width=123, height=20, command=lambda:buttonCropPressed(text))
 		btnCrop.image = imageBtnCrop
 		btnCrop.pack(side=TOP, pady=10)
 
 		imageBtnScale = PhotoImage(file = "presentation\\images\\escalar_imagen.png")
-		btnScale = Button(lblRight2, image=imageBtnScale, border="0", width=130, height=20, command=lambda:buttonScalePressed(text))
+		btnScale = Button(lblRight2, image=imageBtnScale, border="0", width=123, height=20, command=lambda:buttonScalePressed(text))
 		btnScale.image = imageBtnScale
-		btnScale.pack(side=TOP, pady=10)
+		btnScale.pack(side=TOP)
 
 def showFrameImageSelected():
 	frameImageSelected.pack(fill=BOTH, expand=True)
@@ -413,7 +415,8 @@ def initializeFramePredictionResult(pred):
 	lblNobelSpeedyReplaceTrichannelLink.bind("<Button-1>", lambda event:callback(event, "NobelSpeedyReplaceTrichannel"))
 
 	imageBtnMainMenu = PhotoImage(file = "presentation\\images\\inicio.png")
-	btnMainMenu = Button(lblBackground, image=imageBtnMainMenu, command=lambda:buttonMainMenuPressed())
+	# btnMainMenu = Button(lblBackground, image=imageBtnMainMenu, border="2", width=104, height=58, command=lambda:buttonMainMenuPressed())
+	btnMainMenu = Button(lblBackground, image=imageBtnMainMenu, border="0", width=102, height=56, command=lambda:buttonMainMenuPressed())
 	btnMainMenu.image = imageBtnMainMenu
 	btnMainMenu.pack(side=TOP, pady=20)
 
