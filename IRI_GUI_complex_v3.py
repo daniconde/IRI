@@ -9,6 +9,7 @@ from PIL import Image
 import threading
 import webbrowser
 import locale
+import random
 # import screeninfo
 
 
@@ -151,6 +152,8 @@ def initializeRoot():
 
 	root.title("Implant Radiography Identifier")
 
+	root.iconbitmap("presentation\\images\\icono.ico")
+
 
 
 def buttonMakePredictionPressed():
@@ -160,16 +163,28 @@ def buttonMakePredictionPressed():
 	initializeFrameImageSelected("...", None)
 	showFrameImageSelected()
 
+def buttonAddRadiographyPressed():
+	destroyFrameMainMenu()
+	global frameSelectModel
+	frameSelectModel = Frame(root)
+	initializeFrameSelectModel()
+	showFrameSelectModel()
+
 def initializeFrameMainMenu():
 	background = PhotoImage(file = "presentation\\images\\background_title.png")
 	lblBackground = Label(frameMainMenu, image=background)
 	lblBackground.image = background
 	lblBackground.pack(fill=BOTH, expand=True)
 	
-	iconSearchImplant = PhotoImage(file = "presentation\\images\\icon_implant.png")
-	btnMakePrediction = Button(lblBackground, width=200, height=200, image=iconSearchImplant, command=buttonMakePredictionPressed)
-	btnMakePrediction.image = iconSearchImplant
-	btnMakePrediction.place(relx=.5, rely=.5, anchor=CENTER)
+	imageBtnMakePrediction = PhotoImage(file = "presentation\\images\\predecir_implante.png")
+	btnMakePrediction = Button(lblBackground, border="0", width=396, height=69, image=imageBtnMakePrediction, command=lambda:buttonMakePredictionPressed())
+	btnMakePrediction.image = imageBtnMakePrediction
+	btnMakePrediction.place(relx=.5, rely=.45, anchor=CENTER)
+
+	imageBtnAddRadiography = PhotoImage(file = "presentation\\images\\anadir_radiografia.png")
+	btnAddRadiography = Button(lblBackground, border="0", width=396, height=69, image=imageBtnAddRadiography, command=lambda:buttonAddRadiographyPressed())
+	btnAddRadiography.image = imageBtnAddRadiography
+	btnAddRadiography.place(relx=.5, rely=.58, anchor=CENTER)
 	
 def showFrameMainMenu():
 	frameMainMenu.pack(fill=BOTH, expand=True)
@@ -180,6 +195,208 @@ def hideFrameMainMenu():
 
 def destroyFrameMainMenu():
 	frameMainMenu.destroy()
+
+
+
+def buttonBackFrameSelectModelPressed():
+	destroyFrameSelectModel()
+	global frameMainMenu
+	frameMainMenu = Frame(root)
+	initializeFrameMainMenu()
+	showFrameMainMenu()
+
+def buttonAstraPressed():
+	destroyFrameSelectModel()
+	global frameAddRadiography
+	frameAddRadiography = Frame(root)
+	initializeFrameAddRadiography("Astra", "...", None)
+	showFrameAddRadiography()
+
+def buttonNobelActivePressed():
+	destroyFrameSelectModel()
+	global frameAddRadiography
+	frameAddRadiography = Frame(root)
+	initializeFrameAddRadiography("NobelActive", "...", None)
+	showFrameAddRadiography()
+
+def buttonNobelParallelPressed():
+	destroyFrameSelectModel()
+	global frameAddRadiography
+	frameAddRadiography = Frame(root)
+	initializeFrameAddRadiography("NobelParallel", "...", None)
+	showFrameAddRadiography()
+
+def buttonNobelReplaceSelectPressed():
+	destroyFrameSelectModel()
+	global frameAddRadiography
+	frameAddRadiography = Frame(root)
+	initializeFrameAddRadiography("NobelReplaceSelect", "...", None)
+	showFrameAddRadiography()
+
+def buttonNobelReplaceTaperedPressed():
+	destroyFrameSelectModel()
+	global frameAddRadiography
+	frameAddRadiography = Frame(root)
+	initializeFrameAddRadiography("NobelReplaceTapered", "...", None)
+	showFrameAddRadiography()
+
+def buttonNobelSpeedyReplaceTrichannelPressed():
+	destroyFrameSelectModel()
+	global frameAddRadiography
+	frameAddRadiography = Frame(root)
+	initializeFrameAddRadiography("NobelSpeedyReplaceTrichannel", "...", None)
+	showFrameAddRadiography()
+
+def initializeFrameSelectModel():
+	background = PhotoImage(file = "presentation\\images\\background_deg_selec_modelo.png")
+	lblBackground = Label(frameSelectModel, image=background)
+	lblBackground.image = background
+	lblBackground.pack(fill=BOTH, expand=True)
+
+	iconBack = PhotoImage(file = "presentation\\images\\left_arrow.png")
+	btnBack = Button(lblBackground, image=iconBack, bg="#31A190", border="0", width=90, height=90, command=lambda:buttonBackFrameSelectModelPressed())
+	btnBack.image = iconBack
+	btnBack.pack(side=TOP, anchor=W, padx=10, pady=120)
+	
+	imageBtnAstra = PhotoImage(file = "presentation\\images\\button_astra.png")
+	btnAstra = Button(lblBackground, border="0", width=520, height=55, image=imageBtnAstra, command=lambda:buttonAstraPressed())
+	btnAstra.image = imageBtnAstra
+	btnAstra.place(relx=.5, rely=.30, anchor=CENTER)
+
+	imageBtnNobelActive = PhotoImage(file = "presentation\\images\\button_nobel_active.png")
+	btnNobelActive = Button(lblBackground, border="0", width=520, height=55, image=imageBtnNobelActive, command=lambda:buttonNobelActivePressed())
+	btnNobelActive.image = imageBtnNobelActive
+	btnNobelActive.place(relx=.5, rely=.40, anchor=CENTER)
+
+	imageBtnNobelParallel = PhotoImage(file = "presentation\\images\\button_nobel_parallel.png")
+	btnNobelParallel = Button(lblBackground, border="0", width=520, height=55, image=imageBtnNobelParallel, command=lambda:buttonNobelParallelPressed())
+	btnNobelParallel.image = imageBtnNobelParallel
+	btnNobelParallel.place(relx=.5, rely=.50, anchor=CENTER)
+
+	imageBtnNobelReplaceSelect = PhotoImage(file = "presentation\\images\\button_nobel_replace_select.png")
+	btnNobelReplaceSelect = Button(lblBackground, border="0", width=520, height=55, image=imageBtnNobelReplaceSelect, command=lambda:buttonNobelReplaceSelectPressed())
+	btnNobelReplaceSelect.image = imageBtnNobelReplaceSelect
+	btnNobelReplaceSelect.place(relx=.5, rely=.60, anchor=CENTER)
+
+	imageBtnNobelReplaceTapered = PhotoImage(file = "presentation\\images\\button_nobel_replace_tapered.png")
+	btnNobelReplaceTapered = Button(lblBackground, border="0", width=520, height=55, image=imageBtnNobelReplaceTapered, command=lambda:buttonNobelReplaceTaperedPressed())
+	btnNobelReplaceTapered.image = imageBtnNobelReplaceTapered
+	btnNobelReplaceTapered.place(relx=.5, rely=.70, anchor=CENTER)
+
+	imageBtnNobelSpeedyReplaceTrichannel = PhotoImage(file = "presentation\\images\\button_nobel_speedy_replace_trichannel.png")
+	btnNobelSpeedyReplaceTrichannel = Button(lblBackground, border="0", width=520, height=55, image=imageBtnNobelSpeedyReplaceTrichannel, command=lambda:buttonNobelSpeedyReplaceTrichannelPressed())
+	btnNobelSpeedyReplaceTrichannel.image = imageBtnNobelSpeedyReplaceTrichannel
+	btnNobelSpeedyReplaceTrichannel.place(relx=.5, rely=.80, anchor=CENTER)
+	
+def showFrameSelectModel():
+	frameSelectModel.pack(fill=BOTH, expand=True)
+
+def hideFrameSelectModel():
+	# Esconder pack_forget() o grid_forget()
+	frameSelectModel.pack_forget()
+
+def destroyFrameSelectModel():
+	frameSelectModel.destroy()
+
+
+
+def buttonBackFrameAddRadiographyPressed():
+	destroyFrameAddRadiography()
+	global frameSelectModel
+	frameSelectModel = Frame(root)
+	initializeFrameSelectModel()
+	showFrameSelectModel()
+
+def buttonOpenFile2Pressed(model):
+	file = openFile()
+	photo = PhotoImage(file=file)
+	destroyFrameAddRadiography()
+	global frameAddRadiography
+	frameAddRadiography = Frame(root)
+	initializeFrameAddRadiography(model, file, photo)
+	showFrameAddRadiography()
+
+def buttonSavePressed(model, file):
+	path = ""
+	x = random.randint(115,100000)
+	if model == "Astra":
+		path = "dataset\\INPUT\\ASTRA\\Astra"
+	elif model == "NobelActive":
+		path = "dataset\\INPUT\\NOBEL_ACTIVE\\nobel_active"
+	elif model == "NobelParallel":
+		path = "dataset\\INPUT\\NOBEL_PARALLEL_CC\\nobel_parallel"
+	elif model == "NobelReplaceSelect":
+		path = "dataset\\INPUT\\NOBEL_REPLACE_SELECT\\nobel_replace_select"
+	elif model == "NobelReplaceTapered":
+		path = "dataset\\INPUT\\NOBEL_REPLACE_TAPERED\\nobel_replace_tapered"
+	else:
+		path = "dataset\\INPUT\\NOBEL_SPEEDY_REPLACE_TRICHANNEL\\nobel_speedy"
+
+	path = path + x + ".png"
+
+	image = cv2.imread(file)
+
+	cv2.imwrite(path, image)
+
+def initializeFrameAddRadiography(model, text, photo):
+	background = PhotoImage(file = "presentation\\images\\background_deg_anadir_radiografia.png")
+	lblBackground = Label(frameAddRadiography, image=background)
+	lblBackground.image = background
+	lblBackground.pack(fill=BOTH, expand=True)
+
+	routeText = StringVar()
+	routeText.set(text)
+
+	iconBack = PhotoImage(file = "presentation\\images\\left_arrow.png")
+	btnBack = Button(lblBackground, image=iconBack, bg="#31A190", border="0", width=90, height=90, command=lambda:buttonBackFrameAddRadiographyPressed())
+	btnBack.image = iconBack
+	btnBack.pack(side=TOP, anchor=W, padx=10, pady=120)
+
+	lblTop1 = Label(lblBackground, bg="#31A190")
+	lblTop1.pack(side=TOP)
+
+	lblTop2 = Label(lblTop1, bg="#31A190")
+	lblTop2.pack(side=TOP)
+
+	lblRight2 = Label(lblTop1, bg="#31A190")
+	lblRight2.pack(side=RIGHT, pady=30)
+
+	lblBottom2 = Label(lblTop1, bg="#31A190")
+	lblBottom2.pack(side=BOTTOM)
+
+	lblRouteFileSelected = Label(lblTop2, textvariable=routeText, background="white").pack(side=LEFT)
+
+	imageBtnOpenFile = PhotoImage(file = "presentation\\images\\abrir_archivo.png")
+	btnOpenFile = Button(lblTop2, image=imageBtnOpenFile, border="0", width=110, height=20, command=lambda:buttonOpenFile2Pressed(model))
+	btnOpenFile.image = imageBtnOpenFile
+	btnOpenFile.pack(side=LEFT, padx=10)
+
+	if photo != None:
+		lblImageSelected = Label(lblBottom2, image=photo, bg="#31A190", width=400, height=300)
+		lblImageSelected.image = photo
+		lblImageSelected.pack()
+	
+	imageBtnSave = PhotoImage(file = "presentation\\images\\guardar.png")
+	if photo == None:
+		# btnPredict = Button(lblBackground, image=imageBtnSave, border="2", width=301, height=65, state=DISABLED, command=lambda:buttonPredictPressed(routeText))
+		btnSave = Button(lblBackground, image=imageBtnSave, border="0", width=148, height=57, state=DISABLED, command=lambda:buttonSavePressed(model, text))
+		btnSave.image = imageBtnSave
+		btnSave.pack(side=BOTTOM, pady=30)
+	else:
+		# btnPredict = Button(lblBackground, image=imageBtnSave, border="2", width=301, height=65, command=lambda:buttonPredictPressed())
+		btnSave = Button(lblBackground, image=imageBtnSave, border="0", width=148, height=57, command=lambda:buttonSavePressed(model, text))
+		btnSave.image = imageBtnSave
+		btnSave.pack(side=BOTTOM, pady=30)
+		
+def showFrameAddRadiography():
+	frameAddRadiography.pack(fill=BOTH, expand=True)
+
+def hideFrameAddRadiography():
+	# Esconder pack_forget() o grid_forget()
+	frameAddRadiography.pack_forget()
+
+def destroyFrameAddRadiography():
+	frameAddRadiography.destroy()
 
 
 
@@ -511,6 +728,8 @@ def main():
 if __name__ == '__main__':
 	root = Tk()
 	frameMainMenu = Frame(root)
+	frameSelectModel = Frame(root)
+	frameAddRadiography = Frame(root)
 	frameImageSelected = Frame(root)
 	framePredictionResult = Frame(root)
 	# backgroundImage = PhotoImage(file = "presentation\\images\\background_p.png")
