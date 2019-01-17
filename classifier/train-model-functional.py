@@ -304,11 +304,11 @@ model.compile(optimizer=optimizer,
               loss='categorical_crossentropy',
               metrics=['accuracy'])
 
-cb = EarlyStopping(monitor='acc', min_delta=0.005, patience=0)
+cb = EarlyStopping(monitor='acc', min_delta=0.005, patience=10)
 
-model.fit(images_train, labels_train, batch_size=5, epochs=30, verbose=1, validation_split=0.1, callbacks=[cb])
+model.fit(images_train, labels_train, batch_size=32, epochs=60, verbose=1, validation_split=0.1, callbacks=[cb])
 # model.fit(images_train, labels_train, batch_size=5, epochs=15, verbose=1, validation_split=0.1)
-model.save('model1.keras')
+model.save('model.keras')
 
 # Evaluación del modelo
 result = model.evaluate(images_test, labels_test, verbose=0)
