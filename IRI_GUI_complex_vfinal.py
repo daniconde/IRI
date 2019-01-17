@@ -10,144 +10,17 @@ import threading
 import webbrowser
 import locale
 import random
-# import screeninfo
-
-
-
-def cropImage():
-	# Read image
-	# im = cv2.imread(file, cv2.IMREAD_GRAYSCALE)
-	image = cv2.imread('radiography.png')
-	
-	grayImage = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-	# Select ROI(press ENTER to obtain cropped image)
-	r = cv2.selectROI("image", grayImage)
-	
-	 
-	# Crop image
-	imCrop = grayImage[int(r[1]):int(r[1]+r[3]), int(r[0]):int(r[0]+r[2])]
-
-	# Display cropped image(press ESC to close image windows)
-	# screen_id = 2
-	# screen = screeninfo.get_monitors()[screen_id]
-	# cv2.namedWindow("Image", cv2.WND_PROP_FULLSCREEN)
-	# cv2.moveWindow("Image", screen.x - 1, screen.y - 1)
-	# cv2.setWindowProperty("Image", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-	cv2.imshow("Image", imCrop)
-	cv2.waitKey(0)
-	cv2.destroyAllWindows()
-	return imCrop
-
-def auto_canny(image, sigma=0.33):
-	# compute the median of the single channel pixel intensities
-	v = np.median(image)
- 
-	# apply automatic Canny edge detection using the computed median
-	lower = int(max(0, (1.0 - sigma) * v))
-	upper = int(min(255, (1.0 + sigma) * v))
-	edged = cv2.Canny(image, lower, upper)
- 
-	# return the edged image
-	return edged
-
-def rotateImage():
-	# Read image
-	image = cv2.imread('radiography.png')
-	
-	grayImage = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-	grayImage = cv2.GaussianBlur(grayImage, (3, 3), 0)
-
-	# edged = cv2.Canny(grayImage, 20, 100)
-
-	edged = auto_canny(grayImage)
-
-	# find contours in the edge map
-	cnts = cv2.findContours(edged.copy(), cv2.RETR_EXTERNAL,
-		cv2.CHAIN_APPROX_SIMPLE)
-	cnts = imutils.grab_contours(cnts)
-
-	# ensure at least one contour was found
-	if len(cnts) > 0:
-		# grab the largest contour, then draw a mask for the pill
-		c = max(cnts, key=cv2.contourArea)
-		mask = np.zeros(grayImage.shape, dtype="uint8")
-		cv2.drawContours(mask, [c], -1, 255, -1)
-	 
-		# compute its bounding box of pill, then extract the ROI,
-		# and apply the mask
-		(x, y, w, h) = cv2.boundingRect(c)
-		imageROI = image[y:y + h, x:x + w]
-		maskROI = mask[y:y + h, x:x + w]
-		imageROI = cv2.bitwise_and(imageROI, imageROI,
-			mask=maskROI)
-
-
-	# loop over the rotation angles again, this time ensure the
-	# entire pill is still within the ROI after rotation
-	# for angle in np.arange(0, 360, 15):
-	# 	rotated = imutils.rotate_bound(imageROI, angle)
-	# 	cv2.imshow("Rotated (Correct)", rotated)
-	# 	cv2.waitKey(0)
-
-	angle = 0
-	f = True
-	# k = 27 --> ESC
-	while (f):
-		rotated = imutils.rotate_bound(imageROI, angle)
-		cv2.namedWindow("Rotated", cv2.WINDOW_AUTOSIZE)
-		# cv2.resizeWindow("Rotated", 500, 500)
-		# cv2.moveWindow("Rotated", 100, 100)
-		cv2.imshow("Rotated", rotated)
-		k = cv2.waitKey(0)
-		if (k == ord('d')):
-			if ((angle + 15) == 360):
-				angle = 0
-			else:
-				angle += 15
-		if (k == ord('a')):
-			if (angle == 0):
-				angle = 345
-			else:
-				angle -= 15
-		if k == 27:
-			cv2.destroyAllWindows()
-			f = False
-		if k == ord('o'):
-			cv2.destroyAllWindows()
-			f = False
-			return True, rotated
-	return False, None
-
-	# if k == 27:
-	# 	cv2.destroyAllWindows()
-	# elif k == ord('\n'):
-	# 	cv2.destroyAllWindows()
-
-# def buttonMakePredictionPressed():
-# 	file = openFile()
-# 	result, imageRotated = rotateImage(file)
-# 	if result:
-# 		imageCropped = cropImage(imageRotated)
-# 		imageResized = cv2.resize(imageCropped, (90, 160))
-# 		cv2.imshow("Resized", imageResized)
-# 		print(type(imageResized)) 
 
 def openFile():
 	file = filedialog.askopenfilename(title="Abrir", initialdir="c:", filetypes=(("Ficheros PNG", "*.png"), ("Ficheros JPG", "*.jpg"), ("Todos los ficheros", "*.*")))
-
-	print(file)
 
 	return file
 
 
 
 def initializeRoot():
-	# root.attributes('-fullscreen', True)
 	root.state('zoomed')
 
-	# Lo del config se puede poner directament en el constructor
 	root.config(bg="blue")
 
 	root.title("Implant Radiography Identifier")
@@ -190,7 +63,6 @@ def showFrameMainMenu():
 	frameMainMenu.pack(fill=BOTH, expand=True)
 
 def hideFrameMainMenu():
-	# Esconder pack_forget() o grid_forget()
 	frameMainMenu.pack_forget()
 
 def destroyFrameMainMenu():
@@ -292,7 +164,6 @@ def showFrameSelectModel():
 	frameSelectModel.pack(fill=BOTH, expand=True)
 
 def hideFrameSelectModel():
-	# Esconder pack_forget() o grid_forget()
 	frameSelectModel.pack_forget()
 
 def destroyFrameSelectModel():
@@ -313,7 +184,10 @@ def buttonOpenFile2Pressed(model):
 	destroyFrameAddRadiography()
 	global frameAddRadiography
 	frameAddRadiography = Frame(root)
-	initializeFrameAddRadiography(model, file, photo)
+	if file == "":
+		initializeFrameAddRadiography(model, "...", None)
+	else:
+		initializeFrameAddRadiography(model, file, photo)
 	showFrameAddRadiography()
 
 def buttonSavePressed(model, file):
@@ -343,8 +217,6 @@ def buttonSavePressed(model, file):
 	frameMainMenu = Frame(root)
 	initializeFrameMainMenu()
 	showFrameMainMenu()
-
-
 
 def initializeFrameAddRadiography(model, text, photo):
 	background = PhotoImage(file = "presentation\\images\\background_deg_anadir_radiografia.png")
@@ -386,12 +258,10 @@ def initializeFrameAddRadiography(model, text, photo):
 	
 	imageBtnSave = PhotoImage(file = "presentation\\images\\guardar.png")
 	if photo == None:
-		# btnPredict = Button(lblBackground, image=imageBtnSave, border="2", width=301, height=65, state=DISABLED, command=lambda:buttonPredictPressed(routeText))
 		btnSave = Button(lblBackground, image=imageBtnSave, border="0", width=148, height=57, state=DISABLED, command=lambda:buttonSavePressed(model, text))
 		btnSave.image = imageBtnSave
 		btnSave.pack(side=BOTTOM, pady=30)
 	else:
-		# btnPredict = Button(lblBackground, image=imageBtnSave, border="2", width=301, height=65, command=lambda:buttonPredictPressed())
 		btnSave = Button(lblBackground, image=imageBtnSave, border="0", width=148, height=57, command=lambda:buttonSavePressed(model, text))
 		btnSave.image = imageBtnSave
 		btnSave.pack(side=BOTTOM, pady=30)
@@ -400,7 +270,6 @@ def showFrameAddRadiography():
 	frameAddRadiography.pack(fill=BOTH, expand=True)
 
 def hideFrameAddRadiography():
-	# Esconder pack_forget() o grid_forget()
 	frameAddRadiography.pack_forget()
 
 def destroyFrameAddRadiography():
@@ -417,63 +286,20 @@ def buttonBackFrameImageSelectedPressed():
 
 def buttonOpenFilePressed():
 	file = openFile()
-	
-	# height -> image.shape[0], width -> image.shape[1], channels -> image.shape[2]
-	image = cv2.imread(file)
-	# height -> image.shape[0], width -> image.shape[1], channels -> no tiene
-	grayImage = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-	imageResized = cv2.resize(grayImage, (int(grayImage.shape[1]*0.6), int(grayImage.shape[0]*0.6)))
-
-	cv2.imwrite('radiography.png', imageResized)
-
-	photo = PhotoImage(file='radiography.png')
+	photo = PhotoImage(file=file)
 	destroyFrameImageSelected()
 	global frameImageSelected
 	frameImageSelected = Frame(root)
-	initializeFrameImageSelected(file, photo)
-	showFrameImageSelected()
-
-def buttonRotatePressed(file):
-	result, image = rotateImage()
-	if result:
-		cv2.imwrite('radiography.png', image)
-		photo = PhotoImage(file='radiography.png')
-		destroyFrameImageSelected()
-		global frameImageSelected
-		frameImageSelected = Frame(root)
+	if file == "":
+		initializeFrameImageSelected("...", None)
+	else:
 		initializeFrameImageSelected(file, photo)
-		showFrameImageSelected()
-
-def buttonCropPressed(file):
-	image = cropImage()
-	cv2.imwrite('radiography.png', image)
-	photo = PhotoImage(file='radiography.png')
-	destroyFrameImageSelected()
-	global frameImageSelected
-	frameImageSelected = Frame(root)
-	initializeFrameImageSelected(file, photo)
-	showFrameImageSelected()
-
-def buttonScalePressed(file):
-	image = cv2.imread('radiography.png')
-	grayImage = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-	imageResized = cv2.resize(grayImage, (90, 160))
-	cv2.imwrite('radiography.png', imageResized)
-	photo = PhotoImage(file='radiography.png')
-	destroyFrameImageSelected()
-	global frameImageSelected
-	frameImageSelected = Frame(root)
-	initializeFrameImageSelected(file, photo)
 	showFrameImageSelected()
 
 def modelWithHighestProbability(pred):
 	model = 0
 	prob = 0
-	print(len(pred))
 	for i in range(len(pred[0])):
-		print("hola")
-		print(i)
 		if i == 0:
 			prob = pred.item(i)
 			model = i
@@ -494,19 +320,12 @@ def modelWithHighestProbability(pred):
 	else:
 		return "NobelSpeedyReplaceTrichannel"
 
-def buttonPredictPressed():
-	image = convertOneImage('radiography.png')
-	# image = cv2.imread(file)
-	# grayImage = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-	# cv2.imshow("Show", grayImage)
-	# cv2.waitKey(0)
-	# grayImage = grayImage.flatten()
+def buttonPredictPressed(file):
+	image = convertOneImage(file)
+	
 	pred = makePrediction(image)
 
 	model = modelWithHighestProbability(pred)
-	
-	print(pred)
-	print(type(pred))
 	
 	destroyFrameImageSelected()
 	global framePredictionResult
@@ -534,9 +353,6 @@ def initializeFrameImageSelected(text, photo):
 	lblTop2 = Label(lblTop1, bg="#31A190")
 	lblTop2.pack(side=TOP)
 
-	lblRight2 = Label(lblTop1, bg="#31A190")
-	lblRight2.pack(side=RIGHT, pady=30)
-
 	lblBottom2 = Label(lblTop1, bg="#31A190")
 	lblBottom2.pack(side=BOTTOM)
 
@@ -554,36 +370,19 @@ def initializeFrameImageSelected(text, photo):
 	
 	imageBtnPredict = PhotoImage(file = "presentation\\images\\realizar_prediccion.png")
 	if photo == None:
-		# btnPredict = Button(lblBackground, image=imageBtnPredict, border="2", width=301, height=65, state=DISABLED, command=lambda:buttonPredictPressed(routeText))
-		btnPredict = Button(lblBackground, image=imageBtnPredict, border="0", width=299, height=63, state=DISABLED, command=lambda:buttonPredictPressed(routeText))
+		btnPredict = Button(lblBackground, image=imageBtnPredict, border="0", width=299, height=63, state=DISABLED, command=lambda:buttonPredictPressed(text))
 		btnPredict.image = imageBtnPredict
 		btnPredict.pack(side=BOTTOM, pady=30)
 	else:
-		# btnPredict = Button(lblBackground, image=imageBtnPredict, border="2", width=301, height=65, command=lambda:buttonPredictPressed())
-		btnPredict = Button(lblBackground, image=imageBtnPredict, border="0", width=299, height=63, command=lambda:buttonPredictPressed())
+		btnPredict = Button(lblBackground, image=imageBtnPredict, border="0", width=299, height=63, command=lambda:buttonPredictPressed(text))
 		btnPredict.image = imageBtnPredict
 		btnPredict.pack(side=BOTTOM, pady=30)
 		
-		imageBtnRotate = PhotoImage(file = "presentation\\images\\rotar_imagen.png")
-		btnRotate = Button(lblRight2, image=imageBtnRotate, border="0", width=123, height=20, command=lambda:buttonRotatePressed(text))
-		btnRotate.image = imageBtnRotate
-		btnRotate.pack(side=TOP)
-
-		imageBtnCrop = PhotoImage(file = "presentation\\images\\recortar_imagen.png")
-		btnCrop = Button(lblRight2, image=imageBtnCrop, border="0", width=123, height=20, command=lambda:buttonCropPressed(text))
-		btnCrop.image = imageBtnCrop
-		btnCrop.pack(side=TOP, pady=10)
-
-		imageBtnScale = PhotoImage(file = "presentation\\images\\escalar_imagen.png")
-		btnScale = Button(lblRight2, image=imageBtnScale, border="0", width=123, height=20, command=lambda:buttonScalePressed(text))
-		btnScale.image = imageBtnScale
-		btnScale.pack(side=TOP)
 
 def showFrameImageSelected():
 	frameImageSelected.pack(fill=BOTH, expand=True)
 
 def hideFrameImageSelected():
-	# Esconder pack_forget() o grid_forget()
 	frameImageSelected.pack_forget()
 
 def destroyFrameImageSelected():
@@ -713,7 +512,6 @@ def initializeFramePredictionResult(pred, model):
 		lblNobelSpeedyReplaceTrichannelLink.bind("<Button-1>", lambda event:callback(event, "NobelSpeedyReplaceTrichannel"))
 
 	imageBtnMainMenu = PhotoImage(file = "presentation\\images\\inicio.png")
-	# btnMainMenu = Button(lblBackground, image=imageBtnMainMenu, border="2", width=104, height=58, command=lambda:buttonMainMenuPressed())
 	btnMainMenu = Button(lblBackground, image=imageBtnMainMenu, border="0", width=102, height=56, command=lambda:buttonMainMenuPressed())
 	btnMainMenu.image = imageBtnMainMenu
 	btnMainMenu.pack(side=TOP, pady=40)
@@ -722,7 +520,6 @@ def showFramePredictionResult():
 	framePredictionResult.pack(fill=BOTH, expand=True)
 
 def hideFramePredictionResult():
-	# Esconder pack_forget() o grid_forget()
 	framePredictionResult.pack_forget()
 
 def destroyFramePredictionResult():
@@ -743,12 +540,4 @@ if __name__ == '__main__':
 	frameAddRadiography = Frame(root)
 	frameImageSelected = Frame(root)
 	framePredictionResult = Frame(root)
-	# backgroundImage = PhotoImage(file = "presentation\\images\\background_p.png")
-	# iconSearchImplant = PhotoImage(file = "presentation\\images\\icon_implant.png")
-	# titleLogo = PhotoImage(file = "presentation\\images\\logo.png")
-	# titleSeleccionarRadiografia = PhotoImage(file = "presentation\\images\\seleccionar_radiografia.png")
-	# titleResultadosPrediccion = PhotoImage(file = "presentation\\images\\resultados_prediccion.png")
-	# titleModelo = PhotoImage(file = "presentation\\images\\modelo.png")
-	# titleProbabilidad = PhotoImage(file = "presentation\\images\\probabilidad.png")
-	# titleLink = PhotoImage(file = "presentation\\images\\link.png")
 	main()
